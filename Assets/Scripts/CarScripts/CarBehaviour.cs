@@ -125,8 +125,10 @@ public class CarBehaviour : MonoBehaviour {
     // Changes the current velocity of the car.
     private void ChangeCarVelocity() {
         Vector3 direction = new Vector3(0, 1, 0); // Vector3 is a structure
-        transform.rotation = CarRotation;
-        direction = CarRotation * direction;
+        if ( this.Velocity != 0 ) {
+            transform.rotation = CarRotation;
+            direction = CarRotation * direction;
+        }
         this.transform.position += direction * Velocity * Time.deltaTime;
     }
 

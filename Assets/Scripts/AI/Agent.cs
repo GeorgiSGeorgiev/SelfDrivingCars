@@ -53,7 +53,7 @@ public class Agent: IComparable<Agent> {
 
 	public void ResurrectAgent() {
 		this.AgentLives = true;
-		Genotype.Fitness = 0;
+		Genotype.ResetEvalAndFitness();
 	}
 
 	public void KillAgent() {

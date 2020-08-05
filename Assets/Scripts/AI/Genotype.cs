@@ -6,9 +6,11 @@ using System.Collections.Generic;
 /// Genotype is a member of the population.
 /// </summary>
 public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable<double> {
+	public double Evaluation { get; set; }
 	// In evolutionary biology fitness is the quantitative representation of natural selection. (source: https://en.wikipedia.org/wiki/Fitness_(biology))
 	// In our algorithm it represents the value of this genotype relative to the average value of all genotypes.
-	public double Fitness { get; set; }
+	// Fitness = Evaluation / averageEval 
+	public double Fitness { get; private set; }
 
 	private static Random rand = new Random();
 
@@ -41,6 +43,19 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 			// NextDouble returns a double in the range from 0 to 1
 			values[i] = rand.NextDouble() * diff + min; // returns a value in the range from min to max
 		}
+	}
+
+	/// <summary>
+	/// Calculates the Genotype Fitness using the formula Fitness = Evaluation / averageEval
+	/// </summary>
+	/// <param name="averagePopulationEvaluation">The average population evaluation where averageEval = totalEval / populationCount.</param>
+	public void CalculateFitness(double averagePopulationEvaluation) {
+		this.Fitness = this.Evaluation / averagePopulationEvaluation;
+	}
+
+	public void ResetEvalAndFitness() {
+		this.Evaluation = 0;
+		this.Fitness = 0;
 	}
 
 	// indexer for better performance and ease of usage
