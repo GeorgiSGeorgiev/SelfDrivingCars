@@ -18,12 +18,12 @@ public class NodeCountException: Exception {
 }
 
 public class NNLayer {
-	public uint NodeCount { get; }
-	public uint OutputCount { get; }
+	public int NodeCount { get; }
+	public int OutputCount { get; }
 	public double[,] NodeWeights { get; set; }
 	// the first index represents the node ID, the second is the output weight index in the concrete node
 
-	public NNLayer(uint nodeCount, uint outputCount) {
+	public NNLayer(int nodeCount, int outputCount) {
 		this.NodeCount = nodeCount;
 		this.OutputCount = outputCount;
 		NodeWeights = new double[nodeCount + 1, outputCount]; // the 1 represents the bias node
@@ -42,7 +42,7 @@ public class NNLayer {
 		}
 
 		double[] result = new double[OutputCount];
-		uint biasedNodeCount = this.NodeCount + 1;
+		int biasedNodeCount = this.NodeCount + 1;
 		var biasedInputs = new double[biasedNodeCount];
 		inputs.CopyTo(biasedInputs, 0);
 		biasedInputs[biasedNodeCount - 1] = 1;
@@ -75,7 +75,7 @@ public class NNLayer {
 		}
 
 		double[] result = new double[OutputCount];
-		uint biasedNodeCount = this.NodeCount + 1;
+		int biasedNodeCount = this.NodeCount + 1;
 		var biasedInputs = new double[biasedNodeCount];
 		inputs.CopyTo(biasedInputs, 0);
 		biasedInputs[biasedNodeCount - 1] = 1;

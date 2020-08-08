@@ -27,7 +27,7 @@ public class Agent: IComparable<Agent> {
 	/// </summary>
 	public event Action<Agent> AgentDiedEvent;
 
-	public Agent(uint[] topology, Genotype genotype) {
+	public Agent(int[] topology, Genotype genotype) {
 		AgentLives = false;
 		NeuralNet = new NeuralNet(topology);
 		this.Genotype = genotype;

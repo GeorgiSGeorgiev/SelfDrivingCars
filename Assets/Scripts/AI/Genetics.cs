@@ -48,37 +48,33 @@ public class Genetics {
 	/// <summary>
 	/// Delegate to a method that evaluates the current population.
 	/// </summary>
-	public EvaluationMethodDel EvalMethod;
+	public EvaluationMethodDel EvalMethod { get; }
 
 	private static Random rand = new Random();
 
 	private List<Genotype> currentPopulation;
 
-	public uint PopulationSize { get; private set; }
+	public int PopulationSize { get; private set; }
 
 	public uint GenerationNumber { get; private set; }
 
-	public Genetics(uint genotypeVarCount, uint populationSize) {
-		this.PopulationSize = populationSize;
-
-		currentPopulation = new List<Genotype>((int) populationSize);
-		for (int i = 0; i < populationSize; i++) {
-			// add different genotypes to the current population
-			currentPopulation.Add(new Genotype(new double[genotypeVarCount]));
-		}
-
-		InitDefaultPopulation(currentPopulation);
-		GenerationNumber = 1;
-	}
-
 	/// <summary>
-	/// Sets each population value to a random value.
+	/// Creates a new Genetics instance.
 	/// </summary>
-	/// <param name="population">The population to be set.</param>
-	public static void InitDefaultPopulation(IEnumerable<Genotype> population) {
-		foreach (var genotype in population) {
-			genotype.SetRandomValues(DefPopulationValMin, DefPopulationValMax);
+	/// <param name="genotypeVarCount"></param>
+	/// <param name="populationSize"></param>
+	/// <param name="evaluationMethod"></param>
+	public Genetics(int genotypeVarCount, int populationSize, EvaluationMethodDel evaluationMethod = null) {
+		this.PopulationSize = populationSize;
+		this.EvalMethod = evaluationMethod;
+
+		currentPopulation = new List<Genotype>(populationSize);
+		for (int i = 0; i < populationSize; i++) {
+			// Add new genotypes to the current population.
+			var newGenotype = new Genotype(genotypeVarCount, Genetics.DefPopulationValMin, Genetics.DefPopulationValMax);
+			currentPopulation.Add(newGenotype);
 		}
+		GenerationNumber = 1;
 	}
 
 	public static void DefaultFitnessCalculation(IEnumerable<Genotype> population) {
@@ -114,7 +110,7 @@ public class Genetics {
 	/// <param name="secondPopulation">The population from which we choose the genotypes to be crossed.</param>
 	/// <param name="resultPopulationSize">The result population size.</param>
 	/// <returns>New population with the size of resultPopulationSize.</returns>
-	public static IList<Genotype> DefCreateRandomCombination(IList<Genotype> secondPopulation, uint resultPopulationSize) {
+	public static IList<Genotype> DefCreateRandomCombination(IList<Genotype> secondPopulation, int resultPopulationSize) {
 		if (secondPopulation.Count < 2) {
 			throw new ArgumentException("The second population has to have at least two genotypes.");
 		}

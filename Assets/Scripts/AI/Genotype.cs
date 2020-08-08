@@ -32,6 +32,14 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 	}
 
 	/// <summary>
+	/// The new genotype values are random numbers from the given interval.
+	/// </summary>
+	public Genotype(int genotypeVarCount, double populationValMin, double populationValMax) {
+		this.values = new double[genotypeVarCount];
+		this.SetRandomValues(populationValMin, populationValMax);
+	}
+
+	/// <summary>
 	/// Generates random numbers in the interval from min to max and sets the genotype values to these numbers.
 	/// </summary>
 	/// <param name="min">Lower random value limit.</param>

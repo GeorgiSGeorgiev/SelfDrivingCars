@@ -2,13 +2,13 @@
 
 public class NeuralNet {
 	public NNLayer[] Layers { get; }
-	public uint TotalWeightCount { get; }
+	public int TotalWeightCount { get; }
 
 	/// <summary>
 	/// Creates a new fully connected feedforward NN. The netTopology represents the number of nodes in each layer.
 	/// </summary>
 	/// <param name="netTopology">Uint array that represents the number of nodes in each layer.</param>
-	public NeuralNet(uint[] netTopology) {
+	public NeuralNet(int[] netTopology) {
 		Layers = new NNLayer[netTopology.Length - 1]; // the last element of the netTopology array represents the output
 		for (int i = 0; i < Layers.Length; i++) {
 			Layers[i] = new NNLayer(netTopology[i], netTopology[i + 1]);
