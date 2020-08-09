@@ -7,6 +7,8 @@ public class TrackController : MonoBehaviour {
     public static int TrackControllerCount = 0;
     public static TrackController TCInstance;
 
+    public CameraSettings MainCamera;
+
     [SerializeField]
     private Sprite WinningCarSprite;
 
@@ -86,7 +88,9 @@ public class TrackController : MonoBehaviour {
     public event Action<CarController> SecondPosCarHasChanged;
 
 	private void Awake() {
-		if (TrackController.TCInstance != null) { return; }
+        if (TrackController.TCInstance != null) {
+            throw new Exception("The TrackControllerInstance was already created.");
+        }
 
         TrackController.TCInstance = this;
 
@@ -103,25 +107,44 @@ public class TrackController : MonoBehaviour {
 		}
 	}
 
-	private void Update() {
-		for (int i = 0; i < cars.Count; i++) {
+    private void Update() {
+        for (int i = 0; i < cars.Count; i++) {
             if (cars[i].CarController.enabled) {
                 cars[i].CarController.UpdateScore(checkpoints.GetCompletionScore, ref cars[i].CheckpointCount);
 
                 // car crashed, change its sprite
                 if (cars[i].CarController.Physics.enabled == false) {
                     cars[i].UpdateSprite(this.DeadCarSprite);
-				}
+                }
                 // update best car
                 if (WinningCar == null || cars[i].CarController.Score > WinningCar.Score) {
                     WinningCar = cars[i].CarController;
-				}
+                }
                 // update second-position car
                 else if (SecondPosCar == null || cars[i].CarController.Score > SecondPosCar.Score) {
                     SecondPosCar = cars[i].CarController;
-				}
+                }
+            }
+        }
+        if (WinningCar != null && WinningCar.Physics.enabled) {
+            MainCamera.Target = WinningCar.transform;
+        }
+        else if (SecondPosCar != null && SecondPosCar.Physics.enabled) {
+            MainCamera.Target = SecondPosCar.transform;
+        }
+        else {
+            MainCamera.Target = GetBestFunctionalCar().transform;
+		}
+    }
+
+    private CarController GetBestFunctionalCar() {
+        CarController BestMovingCar = WinningCar;
+        foreach (var car in cars) {
+            if (car.CarController.Score > BestMovingCar.Score) {
+                BestMovingCar = car.CarController;
 			}
 		}
+        return BestMovingCar;
 	}
 
     public void UpdateCarCount(int carCount) {
