@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class VelocityAndSteering : MonoBehaviour
 {
     //public GameObject Car;
-    public CarBehaviour CarBehaviour;
+    public CarPhysics CarBehaviour;
     public Text VelocityText;
     public Text SteeringText;
     // Start is called before the first frame update

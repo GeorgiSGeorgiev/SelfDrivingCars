@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class TrackController : MonoBehaviour {
     public static int TrackControllerCount = 0;
+    public static TrackController TCInstance;
 
     [SerializeField]
     private Sprite WinningCarSprite;
@@ -85,9 +86,9 @@ public class TrackController : MonoBehaviour {
     public event Action<CarController> SecondPosCarHasChanged;
 
 	private void Awake() {
-		if (TrackController.TrackControllerCount != 0) { return; }
+		if (TrackController.TCInstance != null) { return; }
 
-        TrackControllerCount++;
+        TrackController.TCInstance = this;
 
         this.checkpoints = new AllCheckpoints(GetComponentsInChildren<Checkpoint>());
 
@@ -153,20 +154,33 @@ public class TrackController : MonoBehaviour {
 		}
     }
 
+    /// <summary>
+    /// Restarts the whole simulation.
+    /// </summary>
 	public void Restart() {
 		if (this.AutomaticRestart) {
-            foreach (Car car in cars) {
-                car.CarController.transform.position = startingPos;
-                car.CarController.transform.rotation = startingRot;
-                car.CarController.Restart();
-                car.UpdateSprite(this.NormalCarSprite);
-                car.CheckpointCount = 1;
-			}
-
-            WinningCar = null;
-            SecondPosCar = null;
+            InstantRestart();
+            return;
+		}
+        if (this.RestartButtonClicked) {
+            InstantRestart();
+            this.RestartButtonClicked = false;
+            return;
 		}
 	}
+
+    private void InstantRestart() {
+        foreach (Car car in cars) {
+            car.CarController.transform.position = startingPos;
+            car.CarController.transform.rotation = startingRot;
+            car.CarController.Restart();
+            car.UpdateSprite(this.NormalCarSprite);
+            car.CheckpointCount = 1;
+        }
+
+        WinningCar = null;
+        SecondPosCar = null;
+    }
 
     public IEnumerator<CarController> GetCarEnumerator() {
         for (int i = 0; i < cars.Count; i++)

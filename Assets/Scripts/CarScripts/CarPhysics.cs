@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CarBehaviour : MonoBehaviour {
+public class CarPhysics : MonoBehaviour {
     // Custrom made settings for the game physics
     public float MaximalForwardsVelocity = 80f;
     public float MaximalBackwardsVelocity = 42f;
-    public CarBehaviour[] cars;
+    public CarPhysics[] cars;
     private const float SurfaceFriction = 20f;
     private const float Acceleration = 42f;
     private const float TurnSpeed = 110f;
@@ -162,7 +162,7 @@ public class CarBehaviour : MonoBehaviour {
     /// <summary>
     /// Stops the movement of the car.
     /// </summary>
-    public void Stop() {
+    public void StopCar() {
         Velocity = 0; // Stop the car.
         CarRotation = Quaternion.AngleAxis(0, new Vector3(0, 0, 1)); // Set rotation angle to 0.
     }

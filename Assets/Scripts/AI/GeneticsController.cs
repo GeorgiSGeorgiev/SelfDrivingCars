@@ -39,18 +39,23 @@ public class GeneticsController : MonoBehaviour {
 		this.agents.Clear();
 		AgentsAliveCount = 0;
 
-		foreach (var item in population) {
+		foreach (Genotype item in population) {
 			agents.Add(new Agent(NNTopology, item));
 		}
 
-		//
-		//
-		//
-		// I have to assign agents to cars
-		// TrackManager needed
-		//
-		//
-		//
+		TrackController.TCInstance.UpdateCarCount(this.agents.Count);
+		var carsEnum = TrackController.TCInstance.GetCarEnumerator();
+		// add agents to cars
+		foreach (var agent in agents) {
+			if (!carsEnum.MoveNext()) {
+				throw new Exception("carsEnum ended before agents enum");
+			}
+			carsEnum.Current.Agent = agent;
+			this.AgentsAliveCount++;
+			agent.AgentDiedEvent += OnAgentDied;
+		}
+
+		TrackController.TCInstance.Restart();
 	}
 
 	private void OnAgentDied(Agent agent) {

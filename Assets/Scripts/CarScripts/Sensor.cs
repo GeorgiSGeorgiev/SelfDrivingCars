@@ -53,10 +53,10 @@ public class Sensor : MonoBehaviour {
     public void SetSpriteColor(Color color) {
         this.UsedSprite.color = color;
     }
-    public void HideCross() {
+    public void HideSprite() {
         this.UsedSprite.gameObject.SetActive(false);
 	}
-    public void ShowCross() {
+    public void ShowSprite() {
         this.UsedSprite.gameObject.SetActive(true);
 	}
 }
