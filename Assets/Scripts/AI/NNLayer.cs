@@ -20,13 +20,13 @@ public class NodeCountException: Exception {
 public class NNLayer {
 	public int NodeCount { get; }
 	public int OutputCount { get; }
-	public double[,] NodeWeights { get; set; }
+	public float[,] NodeWeights { get; set; }
 	// the first index represents the node ID, the second is the output weight index in the concrete node
 
 	public NNLayer(int nodeCount, int outputCount) {
 		this.NodeCount = nodeCount;
 		this.OutputCount = outputCount;
-		NodeWeights = new double[nodeCount + 1, outputCount]; // the 1 represents the bias node
+		NodeWeights = new float[nodeCount + 1, outputCount]; // the 1 represents the bias node
 	}
 
 

@@ -22,12 +22,14 @@ public class AllCheckpoints : IReadOnlyList<Checkpoint> {
 			for (int i = 1; i < this.checkps.Length; i++) {
 				checkps[i].DistanceFromLastOne = Vector2.Distance(checkpoints[i].transform.position, checkpoints[i - 1].transform.position);
 				checkps[i].DistanceFromStart = checkps[i].DistanceFromLastOne + checkps[i - 1].DistanceFromStart;
+				//Debug.Log($" { checkps[i].DistanceFromLastOne } { checkps[i].DistanceFromStart }");
 			}
 			this.TrackLength = checkps[checkps.Length - 1].DistanceFromStart;
 			// calculate score
 			for (int i = 1; i < this.checkps.Length; i++) {
 				checkps[i].ScoreValue = (checkps[i].DistanceFromStart / TrackLength) - checkps[i - 1].ScoreTotal;
 				checkps[i].ScoreTotal = checkps[i].ScoreValue + checkps[i - 1].ScoreTotal;
+				//Debug.Log($" { checkps[i].ScoreValue } { checkps[i].ScoreTotal }");
 			}
 		}
 	}

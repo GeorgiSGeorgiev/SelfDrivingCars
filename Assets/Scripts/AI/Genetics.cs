@@ -29,21 +29,21 @@ public class Genetics {
 	/// <summary>
 	/// The default probability that a population value is mutated.
 	/// </summary>
-	public const float DefMutationProbability = 0.4f;
+	public const float DefMutationProbability = 0.3f;
 	/// <summary>
 	/// The default amount by which the population values are mutated. 
 	/// </summary>
-	public const float DefMutationAmount = 2.5f;
+	public const float DefMutationAmount = 2f;
 	/// <summary>
 	/// The default percent on the new genotype that are mutated. This parameter has a big impact on the learning process.
 	/// </summary>
-	public const float DefMutationPercent = 5.0f;
+	public const float DefMutationPercent = 1.0f;
 
 
 	/// <summary>
 	/// The default probability that the population values will be swapped during the crossover.
 	/// </summary>
-	public const float DefSwapProbability = 0.65f;
+	public const float DefSwapProbability = 0.60f;
 
 	/// <summary>
 	/// Delegate to a method that evaluates the current population.
@@ -71,7 +71,7 @@ public class Genetics {
 		currentPopulation = new List<Genotype>(populationSize);
 		for (int i = 0; i < populationSize; i++) {
 			// Add new genotypes to the current population.
-			var newGenotype = new Genotype(genotypeVarCount, Genetics.DefPopulationValMin, Genetics.DefPopulationValMax);
+			var newGenotype = new Genotype(genotypeVarCount, Genetics.DefPopulationValMin, Genetics.DefPopulationValMax, rand);
 			currentPopulation.Add(newGenotype);
 		}
 		GenerationNumber = 1;

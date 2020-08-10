@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// Genotype is a member of the population.
@@ -12,7 +13,7 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 	// Fitness = Evaluation / averageEval 
 	public float Fitness { get; private set; }
 
-	private static Random rand = new Random();
+	private static System.Random rand = new System.Random();
 
 	private float[] values;
 	public int ValueCount {
@@ -34,7 +35,8 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 	/// <summary>
 	/// The new genotype values are random numbers from the given interval.
 	/// </summary>
-	public Genotype(int genotypeVarCount, float populationValMin, float populationValMax) {
+	public Genotype(int genotypeVarCount, float populationValMin, float populationValMax, System.Random random) {
+		rand = random;
 		this.values = new float[genotypeVarCount];
 		this.SetRandomValues(populationValMin, populationValMax);
 	}
@@ -47,10 +49,14 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 	public void SetRandomValues(float min, float max) {
 		if (min > max) throw new ArgumentException("min value is bigger than max value!");
 		float diff = max - min;
+		//debug
+		string debugString = "";
 		for (int i = 0; i < values.Length; i++) {
 			// NextDouble returns a double in the range from 0 to 1
 			values[i] = (float) rand.NextDouble() * diff + min; // returns a value in the range from min to max
+			debugString += values[i].ToString() + "  ";
 		}
+		Debug.Log("Weights:" + debugString);
 	}
 
 	/// <summary>

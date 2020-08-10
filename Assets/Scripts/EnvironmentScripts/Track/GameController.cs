@@ -7,8 +7,8 @@ using UnityEngine.SceneManagement;
 public class GameController : MonoBehaviour {
     #region Members
     // The camera object, to be referenced in Unity Editor.
-    [SerializeField]
-    private CameraSettings Camera;
+    //[SerializeField]
+    public CameraSettings Camera;
 
     public static GameController Instance {
         get;
@@ -17,7 +17,7 @@ public class GameController : MonoBehaviour {
     #endregion
 
     #region Constructors
-    private void Awake() {
+    public void Awake() {
         if (Instance != null) {
             Debug.LogError("Multiple GameStateManagers in the Scene.");
             return;
@@ -25,7 +25,7 @@ public class GameController : MonoBehaviour {
         Instance = this;
     }
 
-    void Start() {
+    public void Start() {
         TrackController.TCInstance.WinningCarHasChanged += OnBestCarChanged;
         GeneticsController.Instance.StartGeneticAlg();
     }

@@ -6,11 +6,9 @@ using UnityEngine;
 public class GeneticsController : MonoBehaviour {
 	public static GeneticsController Instance;
 
-	[SerializeField]
-	private int AgentCount = 40;
+	public int AgentCount = 20;
 
-	[SerializeField]
-	private int[] NNTopology;
+	public int[] NNTopology;
 	private List<Agent> agents { get; } = new List<Agent>();
 
 	public uint AgentsAliveCount { get; private set; }
@@ -21,7 +19,7 @@ public class GeneticsController : MonoBehaviour {
 
 	public uint GenerationNumber { get => geneticAlg.GenerationNumber; }
 
-	private void Awake() {
+	public void Awake() {
 		if (Instance != null) {
 			//throw new Exception("More than one GenetcsController-s running at the moment.");
 			return;
@@ -40,8 +38,8 @@ public class GeneticsController : MonoBehaviour {
 		this.agents.Clear();
 		AgentsAliveCount = 0;
 
-		foreach (Genotype item in population) {
-			agents.Add(new Agent(NNTopology, item));
+		foreach (Genotype genotype in population) {
+			agents.Add(new Agent(NNTopology, genotype));
 		}
 
 		TrackController.TCInstance.UpdateCarCount(this.agents.Count);

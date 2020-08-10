@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Sensor : MonoBehaviour {
-    [SerializeField]
-    private LayerMask DetectionLayer;
+    public LayerMask DetectionLayer;
 
+    public SpriteRenderer UsedSprite;
     [SerializeField]
-    private SpriteRenderer UsedSprite;
-
-    public float MinReadDistance = 0.03f;
-    public float MaxReadDistance = 11f;
+    private float MinReadDistance = 0.03f;
+    [SerializeField]
+    private float MaxReadDistance = 15f;
 
     /// <summary>
     /// The sensor readings as part of the MaxReadDistance.

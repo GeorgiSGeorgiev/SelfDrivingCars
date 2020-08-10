@@ -30,12 +30,12 @@ public class NeuralNet {
 	public double[] GetTheNNOutputs(double[] inputs) {
 		// inputs is passed by reference so we don't want to change it, so:
 		// create the outputs array and copy inputs array to outputs array
+
 		var outputs = new double[inputs.Length];
 		inputs.CopyTo(outputs, 0);
-
 		// get the right output values
-		foreach (var item in Layers) {
-			outputs = item.GetNewOutputs(outputs);
+		foreach (var layer in Layers) {
+			outputs = layer.GetNewOutputs(outputs);
 		}
 		return outputs;
 	}

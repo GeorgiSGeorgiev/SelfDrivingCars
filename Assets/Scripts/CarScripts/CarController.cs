@@ -34,14 +34,14 @@ public class CarController : MonoBehaviour {
         private set;
     }
 
-	private void Awake() {
+	public void Awake() {
         this.SpriteRenderer = GetComponent<SpriteRenderer>();
         this.Physics = GetComponent<CarPhysics>();
         this.sensors = GetComponentsInChildren<Sensor>();
 	}
 
     // Start is called before the first frame update
-    void Start() {
+    private void Start() {
         this.ID = CarController.StaticID;
         this.name = $"Agent { this.ID }";
         if (!KeyboardInput) {
@@ -53,7 +53,7 @@ public class CarController : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update() {
+    private void Update() {
         this.sinceLastCheckpTime += Time.deltaTime;
     }
 
@@ -67,17 +67,27 @@ public class CarController : MonoBehaviour {
             }
             return;
 		}
+        //
+        // Main Entry Point
+        //
 		if (!this.KeyboardInput) {
             double[] sensorsOutputs = new double[sensors.Length];
             for (int i = 0; i < sensors.Length; i++) {
                 sensorsOutputs[i] = sensors[i].Readings;
 			}
+            if (this.ID == 1)
+                Debug.Log($"0.) Inputs: { sensorsOutputs[0]} { sensorsOutputs[1] } { sensorsOutputs[2] }  { sensorsOutputs[3] } { sensorsOutputs[4] }");
             double[] NNOutputs = Agent.NeuralNet.GetTheNNOutputs(sensorsOutputs);
+            if (this.ID == 1) {
+                Debug.Log($"1.) Time: { Time.deltaTime } Outputs: { NNOutputs[0]} { NNOutputs[1] } ");
+                Debug.Log($"Weight count: { this.Agent.NeuralNet.TotalWeightCount } ");
+            }
             this.Physics.SetInput(NNOutputs);
 		}
 	}
 
     private void AgentCarExplode() {
+        //Debug.Log($"{this.ID} crashed");
         this.Physics.StopCar();
         this.Physics.enabled = false;
         this.enabled = false;
@@ -109,8 +119,9 @@ public class CarController : MonoBehaviour {
 
     public delegate float ScoreCountingMethod(CarController car, ref int CheckpointInx);
 
-    public void UpdateScore(ScoreCountingMethod countingMethod, ref int chcecpointInx) {
-        this.Score = countingMethod(this, ref chcecpointInx);
+    public void UpdateScore(ScoreCountingMethod countingMethod, ref int checpointInx) {
+        this.Score = countingMethod(this, ref checpointInx);
+        //Debug.Log($"{ checpointInx }");
     }
 }
 

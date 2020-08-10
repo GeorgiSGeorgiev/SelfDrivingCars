@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// Neural net + Genotype. In our case this will represent the "backend" of the car.
@@ -12,11 +13,11 @@ public class Agent: IComparable<Agent> {
 	public bool AgentLives {
 		get { return agentLives; }
 		private set {
-			if (this.AgentLives == value) {
+			if (this.agentLives == value) {
 				return;
 			}
-			AgentLives = value;
-			if (AgentDiedEvent != null && !AgentLives) {
+			agentLives = value;
+			if (AgentDiedEvent != null && !agentLives) {
 				AgentDiedEvent(this);
 			}
 		}
@@ -28,7 +29,7 @@ public class Agent: IComparable<Agent> {
 	public event Action<Agent> AgentDiedEvent;
 
 	public Agent(int[] topology, Genotype genotype) {
-		AgentLives = false;
+		AgentLives = true;
 		NeuralNet = new NeuralNet(topology);
 		this.Genotype = genotype;
 
@@ -36,12 +37,12 @@ public class Agent: IComparable<Agent> {
 			throw new ArgumentException("Weight count missmatch: NeuralNet.TotalWeightCount != Genotype.ValueCount");
 		}
 
-		foreach (double genes in this.Genotype) {
-			foreach (NNLayer layer in NeuralNet.Layers) {
-				for (int i = 0; i < layer.NodeWeights.GetLength(0); i++) {
-					for (int j = 0; j < layer.NodeWeights.GetLength(1); j++) {
-						layer.NodeWeights[i, j] = genes;
-					}
+		IEnumerator<float> genesEnum = genotype.GetEnumerator();
+		foreach (NNLayer layer in NeuralNet.Layers) {
+			for (int i = 0; i < layer.NodeWeights.GetLength(0); i++) {
+				for (int j = 0; j < layer.NodeWeights.GetLength(1); j++) {
+					genesEnum.MoveNext();
+					layer.NodeWeights[i, j] = genesEnum.Current;
 				}
 			}
 		}
@@ -55,7 +56,7 @@ public class Agent: IComparable<Agent> {
 		this.AgentLives = true;
 		Genotype.ResetEvalAndFitness();
 	}
-
+	
 	public void KillAgent() {
 		this.AgentLives = false;
 	}

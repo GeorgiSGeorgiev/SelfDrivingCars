@@ -10,18 +10,6 @@ public class TrackController : MonoBehaviour {
     //public CameraSettings MainCamera;
 
     [SerializeField]
-    private Sprite WinningCarSprite;
-
-    [SerializeField]
-    private Sprite SecondPosCarSprite;
-
-    [SerializeField]
-    private Sprite NormalCarSprite;
-
-    [SerializeField]
-    private Sprite DeadCarSprite;
-
-    [SerializeField]
     private bool AutomaticRestart = true;
     private bool RestartButtonClicked = false;
 
@@ -45,10 +33,10 @@ public class TrackController : MonoBehaviour {
         private set {
             if (winningCar != value) {
                 if (value != null) {
-                    value.SpriteRenderer.sprite = WinningCarSprite;
+                    value.SpriteRenderer.color = Color.green;
 				}
                 if (WinningCar != null) {
-                    WinningCar.SpriteRenderer.sprite = NormalCarSprite;
+                    WinningCar.SpriteRenderer.color = Color.white;
 				}
 
                 CarController tempCar = winningCar;
@@ -68,16 +56,17 @@ public class TrackController : MonoBehaviour {
     public CarController SecondPosCar {
         get => secondPosCar;
         private set {
-            if (SecondPosCar != value) {
+            if (secondPosCar != value) {
                 if (value != null) {
-                    value.SpriteRenderer.sprite = SecondPosCarSprite;
+                    value.SpriteRenderer.color = Color.yellow;
 				}
-                if (SecondPosCar != null && SecondPosCar != WinningCar) {
-                    SecondPosCar.SpriteRenderer.sprite = NormalCarSprite;
+                if (secondPosCar != null && secondPosCar != WinningCar) {
+                    secondPosCar.SpriteRenderer.color = Color.white;
 				}
-                this.SecondPosCar = value;
+                this.secondPosCar = value;
 
                 SecondPosCarHasChanged?.Invoke(SecondPosCar);
+
 			}
 		}
 	}
@@ -86,8 +75,9 @@ public class TrackController : MonoBehaviour {
     /// Event that means we have a new second posistion car.
     /// </summary>
     public event Action<CarController> SecondPosCarHasChanged;
+    
 
-	private void Awake() {
+	public void Awake() {
         if (TrackController.TCInstance != null) {
             //throw new Exception("The TrackControllerInstance was already created.");
             return;
@@ -102,30 +92,32 @@ public class TrackController : MonoBehaviour {
         PrototypeCarModel.gameObject.SetActive(false);
 	}
 
-	private void Start() {
+	public void Start() {
 		foreach (Checkpoint checkp in this.checkpoints) {
             checkp.IsVisible = false;
 		}
         //GeneticsController.Instance.StartGeneticAlg();
     }
 
-    private void Update() {
+    public void FixedUpdate() {
+        //Debug.Log("NONON");
         for (int i = 0; i < cars.Count; i++) {
             if (cars[i].CarController.enabled) {
                 cars[i].CarController.UpdateScore(checkpoints.GetCompletionScore, ref cars[i].CheckpointCount);
-
-                // car crashed, change its sprite
-                if (cars[i].CarController.Physics.enabled == false) {
-                    cars[i].UpdateSprite(this.DeadCarSprite);
-                }
                 // update best car
                 if (WinningCar == null || cars[i].CarController.Score > WinningCar.Score) {
                     WinningCar = cars[i].CarController;
+                    //Debug.Log($"New best car, Score: { winningCar.Score}");
                 }
                 // update second-position car
-                else if (SecondPosCar == null || cars[i].CarController.Score > SecondPosCar.Score) {
+                if ((SecondPosCar == null || cars[i].CarController.Score > SecondPosCar.Score) && cars[i].CarController != WinningCar) {
                     SecondPosCar = cars[i].CarController;
                 }
+            }
+            // car crashed, change its sprite
+            else if (! (cars[i].CarController == WinningCar || cars[i].CarController == SecondPosCar)) {
+                cars[i].UpdateColor(Color.red);
+                //Debug.Log("NONON");
             }
         }
         /*if (WinningCar != null && WinningCar.Physics.enabled) {
@@ -139,7 +131,7 @@ public class TrackController : MonoBehaviour {
 		}*/
     }
 
-    private CarController GetBestFunctionalCar() {
+    /*private CarController GetBestFunctionalCar() {
         CarController BestMovingCar = WinningCar;
         foreach (var car in cars) {
             if (car.CarController.Score > BestMovingCar.Score) {
@@ -147,7 +139,7 @@ public class TrackController : MonoBehaviour {
 			}
 		}
         return BestMovingCar;
-	}
+	}*/
 
     public void UpdateCarCount(int carCount) {
         if (carCount <= 0) {
@@ -178,7 +170,7 @@ public class TrackController : MonoBehaviour {
             return;
 		}
     }
-
+    
     /// <summary>
     /// Restarts the whole simulation.
     /// </summary>
@@ -199,7 +191,7 @@ public class TrackController : MonoBehaviour {
             car.CarController.transform.position = startingPos;
             car.CarController.transform.rotation = startingRot;
             car.CarController.Restart();
-            car.UpdateSprite(this.NormalCarSprite);
+            car.UpdateColor(Color.white);
             car.CheckpointCount = 1;
         }
 

@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class CarPhysics : MonoBehaviour {
     // Custrom made settings for the game physics
-    public float MaximalForwardsVelocity = 10f;
-    public float MaximalBackwardsVelocity = 10f;
+    public float MaximalForwardsVelocity = 90f;
+    public float MaximalBackwardsVelocity = 5f;
     public CarPhysics[] cars;
     private const float SurfaceFriction = 20f;
     private const float Acceleration = 42f;
@@ -39,7 +39,7 @@ public class CarPhysics : MonoBehaviour {
     /// <summary>
     /// Car crash event.
     /// </summary>
-    public event System.Action Crash;
+    public event Action Crash;
 
     // Start is called before the first frame update.
     void Start() {
@@ -118,6 +118,7 @@ public class CarPhysics : MonoBehaviour {
     /// <summary>
     /// Sets the accelerationInput and the steeringInput according to the inputData argument.
     /// </summary>
+    
     public void SetInput(double[] inputData) {
         accelerationInput = inputData[0];
         steeringInput = inputData[1];
