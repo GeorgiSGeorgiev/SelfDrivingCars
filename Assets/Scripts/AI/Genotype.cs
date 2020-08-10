@@ -5,16 +5,16 @@ using System.Collections.Generic;
 /// <summary>
 /// Genotype is a member of the population.
 /// </summary>
-public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable<double> {
-	public double Evaluation { get; set; }
+public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable<float> {
+	public float Evaluation { get; set; }
 	// In evolutionary biology fitness is the quantitative representation of natural selection. (source: https://en.wikipedia.org/wiki/Fitness_(biology))
 	// In our algorithm it represents the value of this genotype relative to the average value of all genotypes.
 	// Fitness = Evaluation / averageEval 
-	public double Fitness { get; private set; }
+	public float Fitness { get; private set; }
 
 	private static Random rand = new Random();
 
-	private double[] values;
+	private float[] values;
 	public int ValueCount {
 		get {
 			if (this.values == null) {
@@ -26,16 +26,16 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 		}
 	}
 
-	public Genotype(double[] newValues) {
-		this.values = new double[newValues.Length];
+	public Genotype(float[] newValues) {
+		this.values = new float[newValues.Length];
 		newValues.CopyTo(this.values, 0);
 	}
 
 	/// <summary>
 	/// The new genotype values are random numbers from the given interval.
 	/// </summary>
-	public Genotype(int genotypeVarCount, double populationValMin, double populationValMax) {
-		this.values = new double[genotypeVarCount];
+	public Genotype(int genotypeVarCount, float populationValMin, float populationValMax) {
+		this.values = new float[genotypeVarCount];
 		this.SetRandomValues(populationValMin, populationValMax);
 	}
 
@@ -44,12 +44,12 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 	/// </summary>
 	/// <param name="min">Lower random value limit.</param>
 	/// <param name="max">Upper random value limit.</param>
-	public void SetRandomValues(double min, double max) {
+	public void SetRandomValues(float min, float max) {
 		if (min > max) throw new ArgumentException("min value is bigger than max value!");
-		double diff = max - min;
+		float diff = max - min;
 		for (int i = 0; i < values.Length; i++) {
 			// NextDouble returns a double in the range from 0 to 1
-			values[i] = rand.NextDouble() * diff + min; // returns a value in the range from min to max
+			values[i] = (float) rand.NextDouble() * diff + min; // returns a value in the range from min to max
 		}
 	}
 
@@ -57,7 +57,7 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 	/// Calculates the Genotype Fitness using the formula Fitness = Evaluation / averageEval
 	/// </summary>
 	/// <param name="averagePopulationEvaluation">The average population evaluation where averageEval = totalEval / populationCount.</param>
-	public void CalculateFitness(double averagePopulationEvaluation) {
+	public void CalculateFitness(float averagePopulationEvaluation) {
 		this.Fitness = this.Evaluation / averagePopulationEvaluation;
 	}
 
@@ -67,7 +67,7 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 	}
 
 	// indexer for better performance and ease of usage
-	public double this[int index] {
+	public float this[int index] {
 		get => this.values[index];
 		set => this.values[index] = value;
 	}
@@ -121,14 +121,14 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 	#endregion
 
 	// Custom-made enumerator
-	private class GenotypeEnumerator : IEnumerator<double> {
+	private class GenotypeEnumerator : IEnumerator<float> {
 		int index;
-		double[] enum_values;
-		public GenotypeEnumerator(double[] values) {
+		float[] enum_values;
+		public GenotypeEnumerator(float[] values) {
 			enum_values = values;
 			index = -1;
 		}
-		public double Current { get => this.enum_values[index]; }
+		public float Current { get => this.enum_values[index]; }
 
 		object IEnumerator.Current => this.Current;
 
@@ -149,7 +149,7 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 		}
 	}
 
-	public IEnumerator<double> GetEnumerator() {
+	public IEnumerator<float> GetEnumerator() {
 		return new GenotypeEnumerator(this.values);
 	}
 

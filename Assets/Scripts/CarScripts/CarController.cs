@@ -19,7 +19,7 @@ public class CarController : MonoBehaviour {
 
     public Agent Agent { get; set; }
 
-    public double Score {
+    public float Score {
         get => Agent.Genotype.Evaluation;
         set => Agent.Genotype.Evaluation = value;
     }
@@ -44,7 +44,12 @@ public class CarController : MonoBehaviour {
     void Start() {
         this.ID = CarController.StaticID;
         this.name = $"Agent { this.ID }";
-        Physics.Crash += Explode;
+        if (!KeyboardInput) {
+            Physics.Crash += AgentCarExplode;
+        }
+        else {
+            Physics.Crash += UserCarExplode;
+        }
     }
 
     // Update is called once per frame
@@ -54,7 +59,12 @@ public class CarController : MonoBehaviour {
 
 	private void FixedUpdate() {
         if (sinceLastCheckpTime > this.MaxTimeBetweenCheckpoints) {
-            this.Explode();
+            if (!KeyboardInput) {
+                this.AgentCarExplode();
+            }
+            else {
+                this.UserCarExplode();
+            }
             return;
 		}
 		if (!this.KeyboardInput) {
@@ -67,7 +77,7 @@ public class CarController : MonoBehaviour {
 		}
 	}
 
-    private void Explode() {
+    private void AgentCarExplode() {
         this.Physics.StopCar();
         this.Physics.enabled = false;
         this.enabled = false;
@@ -77,7 +87,13 @@ public class CarController : MonoBehaviour {
 		}
 	}
 
-	public void CheckpointCaptured() {
+    private void UserCarExplode() {
+        this.Physics.StopCar();
+        this.Physics.enabled = false;
+        this.enabled = false;
+    }
+
+    public void CheckpointCaptured() {
         sinceLastCheckpTime = 0;
     }
 

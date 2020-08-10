@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class GeneticsController : MonoBehaviour {
-    private static uint controllersActive = 0;
+	public static GeneticsController Instance;
 
 	[SerializeField]
 	private int AgentCount = 40;
@@ -22,10 +22,11 @@ public class GeneticsController : MonoBehaviour {
 	public uint GenerationNumber { get => geneticAlg.GenerationNumber; }
 
 	private void Awake() {
-		if (controllersActive > 0) {
-			throw new Exception("More than one GenetcsController-s running at the moment.");
+		if (Instance != null) {
+			//throw new Exception("More than one GenetcsController-s running at the moment.");
+			return;
 		}
-		controllersActive++;
+		Instance = this;
 	}
 
 	public void StartGeneticAlg() {

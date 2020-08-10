@@ -19,31 +19,31 @@ public class Genetics {
 	/// <summary>
 	/// The default minimum of the population values.
 	/// </summary>
-	public const double DefPopulationValMin = -1.0d;
+	public const float DefPopulationValMin = -1.0f;
 	/// <summary>
 	/// The default maximum of the population values.
 	/// </summary>
-	public const double DefPopulationValMax = 1.0d;
+	public const float DefPopulationValMax = 1.0f;
 
 
 	/// <summary>
 	/// The default probability that a population value is mutated.
 	/// </summary>
-	public const double DefMutationProbability = 0.4d;
+	public const float DefMutationProbability = 0.4f;
 	/// <summary>
 	/// The default amount by which the population values are mutated. 
 	/// </summary>
-	public const double DefMutationAmount = 2.5d;
+	public const float DefMutationAmount = 2.5f;
 	/// <summary>
 	/// The default percent on the new genotype that are mutated. This parameter has a big impact on the learning process.
 	/// </summary>
-	public const double DefMutationPercent = 5.0d;
+	public const float DefMutationPercent = 5.0f;
 
 
 	/// <summary>
 	/// The default probability that the population values will be swapped during the crossover.
 	/// </summary>
-	public const double DefSwapProbability = 0.65d;
+	public const float DefSwapProbability = 0.65f;
 
 	/// <summary>
 	/// Delegate to a method that evaluates the current population.
@@ -81,12 +81,12 @@ public class Genetics {
 		int populationCount = 0;
 
 		// Average Evaluation calculations
-		double totalEval = 0;
+		float totalEval = 0;
 		foreach (var genotype in population) {
 			populationCount++;
 			totalEval += genotype.Evaluation;
 		}
-		double averageEval = totalEval / populationCount;
+		float averageEval = totalEval / populationCount;
 
 		// Calculate Fitness
 		foreach (var genotype in population) {
@@ -143,9 +143,9 @@ public class Genetics {
 		return resultPopulation;
 	}
 
-	public static (Genotype, Genotype) CreateCrossover(Genotype parent1, Genotype parent2, double swapProbability) {
-		var newGenes1 = new double[parent1.ValueCount];
-		var newGenes2 = new double[parent2.ValueCount];
+	public static (Genotype, Genotype) CreateCrossover(Genotype parent1, Genotype parent2, float swapProbability) {
+		var newGenes1 = new float[parent1.ValueCount];
+		var newGenes2 = new float[parent2.ValueCount];
 
 		for (int i = 0; i < parent1.ValueCount; i++) {
 			// swapping just some of the parameters

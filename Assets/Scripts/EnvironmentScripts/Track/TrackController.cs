@@ -7,7 +7,7 @@ public class TrackController : MonoBehaviour {
     public static int TrackControllerCount = 0;
     public static TrackController TCInstance;
 
-    public CameraSettings MainCamera;
+    //public CameraSettings MainCamera;
 
     [SerializeField]
     private Sprite WinningCarSprite;
@@ -89,7 +89,8 @@ public class TrackController : MonoBehaviour {
 
 	private void Awake() {
         if (TrackController.TCInstance != null) {
-            throw new Exception("The TrackControllerInstance was already created.");
+            //throw new Exception("The TrackControllerInstance was already created.");
+            return;
         }
 
         TrackController.TCInstance = this;
@@ -105,7 +106,8 @@ public class TrackController : MonoBehaviour {
 		foreach (Checkpoint checkp in this.checkpoints) {
             checkp.IsVisible = false;
 		}
-	}
+        //GeneticsController.Instance.StartGeneticAlg();
+    }
 
     private void Update() {
         for (int i = 0; i < cars.Count; i++) {
@@ -126,7 +128,7 @@ public class TrackController : MonoBehaviour {
                 }
             }
         }
-        if (WinningCar != null && WinningCar.Physics.enabled) {
+        /*if (WinningCar != null && WinningCar.Physics.enabled) {
             MainCamera.Target = WinningCar.transform;
         }
         else if (SecondPosCar != null && SecondPosCar.Physics.enabled) {
@@ -134,7 +136,7 @@ public class TrackController : MonoBehaviour {
         }
         else {
             MainCamera.Target = GetBestFunctionalCar().transform;
-		}
+		}*/
     }
 
     private CarController GetBestFunctionalCar() {

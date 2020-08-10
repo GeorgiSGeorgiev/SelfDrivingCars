@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class CarPhysics : MonoBehaviour {
     // Custrom made settings for the game physics
-    public float MaximalForwardsVelocity = 80f;
-    public float MaximalBackwardsVelocity = 42f;
+    public float MaximalForwardsVelocity = 10f;
+    public float MaximalBackwardsVelocity = 10f;
     public CarPhysics[] cars;
     private const float SurfaceFriction = 20f;
     private const float Acceleration = 42f;
@@ -44,6 +44,7 @@ public class CarPhysics : MonoBehaviour {
     // Start is called before the first frame update.
     void Start() {
         mainController = GetComponent<CarController>();
+        Physics2D.IgnoreLayerCollision(8,8);
         if (cars != null) {
             foreach (var car in cars) {
                 Physics2D.IgnoreCollision(car.GetComponent<BoxCollider2D>(), GetComponent<BoxCollider2D>(), true);
