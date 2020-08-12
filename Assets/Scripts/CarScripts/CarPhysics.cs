@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class CarPhysics : MonoBehaviour {
     // Custrom made settings for the game physics
-    public float MaximalForwardsVelocity = 90f;
-    public float MaximalBackwardsVelocity = 5f;
+    public static float MaximalForwardsVelocity = 100f;
+    public static float MaximalBackwardsVelocity = 42f;
     public CarPhysics[] cars;
     private const float SurfaceFriction = 20f;
     private const float Acceleration = 42f;
@@ -155,6 +155,7 @@ public class CarPhysics : MonoBehaviour {
     // Method triggered on collision detection.
     void OnCollisionEnter2D() {
         //Debug.Log("Collision");
+        //Crash += Mess;
         Crash?.Invoke();
 
         // On collision, stop the car

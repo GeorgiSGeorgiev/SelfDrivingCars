@@ -52,12 +52,7 @@ public class AllCheckpoints : IReadOnlyList<Checkpoint> {
 	/// <returns></returns>
 	public float GetCompletionScore(CarController car, ref int checkpInx) {
 		// the finish line
-		if ((checkpInx - 1) == checkps.Length) {
-			return 1;
-		}
-		// starts new lap
-		if (checkpInx == checkps.Length) {
-			checkpInx = 1;
+		if (checkpInx >= checkps.Length) {
 			return 1;
 		}
 

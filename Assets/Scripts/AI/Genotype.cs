@@ -56,7 +56,7 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 			values[i] = (float) rand.NextDouble() * diff + min; // returns a value in the range from min to max
 			debugString += values[i].ToString() + "  ";
 		}
-		Debug.Log("Weights:" + debugString);
+		//Debug.Log("Weights:" + debugString);
 	}
 
 	/// <summary>

@@ -21,8 +21,7 @@ public class GeneticsController : MonoBehaviour {
 
 	public void Awake() {
 		if (Instance != null) {
-			//throw new Exception("More than one GenetcsController-s running at the moment.");
-			return;
+			throw new Exception("More than one GenetcsController-s running at the moment.");
 		}
 		Instance = this;
 	}
@@ -41,9 +40,9 @@ public class GeneticsController : MonoBehaviour {
 		foreach (Genotype genotype in population) {
 			agents.Add(new Agent(NNTopology, genotype));
 		}
-
-		TrackController.TCInstance.UpdateCarCount(this.agents.Count);
-		var carsEnum = TrackController.TCInstance.GetCarEnumerator();
+		//Debug.Log("Car init");
+		TrackController.TC.UpdateCarCount(this.agents.Count);
+		var carsEnum = TrackController.TC.GetCarEnumerator();
 		// add agents to cars
 		foreach (var agent in agents) {
 			if (!carsEnum.MoveNext()) {
@@ -54,7 +53,7 @@ public class GeneticsController : MonoBehaviour {
 			agent.AgentDiedEvent += OnAgentDied;
 		}
 
-		TrackController.TCInstance.Restart();
+		TrackController.TC.Restart();
 	}
 
 	private void OnAgentDied(Agent agent) {

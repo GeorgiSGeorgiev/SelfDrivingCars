@@ -2,12 +2,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TrackController : MonoBehaviour {
-    public static int TrackControllerCount = 0;
-    public static TrackController TCInstance;
+    public static TrackController TC;
 
-    //public CameraSettings MainCamera;
+    public CameraSettings MainCamera;
+    public VelocityAndSteering stats;
+
+    private int generationCounter = 0;
+    public int GenerationCounter { 
+        get => generationCounter;
+        private set => generationCounter = value;
+    }
+
+    public Text GenerationTextBox; 
 
     [SerializeField]
     private bool AutomaticRestart = true;
@@ -24,7 +33,7 @@ public class TrackController : MonoBehaviour {
 
     private Vector3 startingPos;
     private Quaternion startingRot;
-    private List<Car> cars = new List<Car>();
+    public List<Car> cars { get; private set; } = new List<Car>();
 
     private CarController winningCar;
 
@@ -78,12 +87,14 @@ public class TrackController : MonoBehaviour {
     
 
 	public void Awake() {
-        if (TrackController.TCInstance != null) {
-            //throw new Exception("The TrackControllerInstance was already created.");
-            return;
+        if (TrackController.TC != null) {
+            throw new Exception("The TrackControllerInstance was already created.");
         }
 
-        TrackController.TCInstance = this;
+        TrackController.TC = this;
+
+        this.GenerationCounter = 0;
+        this.GenerationTextBox.text = this.generationCounter.ToString();
 
         this.checkpoints = new AllCheckpoints(GetComponentsInChildren<Checkpoint>());
 
@@ -96,7 +107,6 @@ public class TrackController : MonoBehaviour {
 		foreach (Checkpoint checkp in this.checkpoints) {
             checkp.IsVisible = false;
 		}
-        //GeneticsController.Instance.StartGeneticAlg();
     }
 
     public void FixedUpdate() {
@@ -120,26 +130,7 @@ public class TrackController : MonoBehaviour {
                 //Debug.Log("NONON");
             }
         }
-        /*if (WinningCar != null && WinningCar.Physics.enabled) {
-            MainCamera.Target = WinningCar.transform;
-        }
-        else if (SecondPosCar != null && SecondPosCar.Physics.enabled) {
-            MainCamera.Target = SecondPosCar.transform;
-        }
-        else {
-            MainCamera.Target = GetBestFunctionalCar().transform;
-		}*/
     }
-
-    /*private CarController GetBestFunctionalCar() {
-        CarController BestMovingCar = WinningCar;
-        foreach (var car in cars) {
-            if (car.CarController.Score > BestMovingCar.Score) {
-                BestMovingCar = car.CarController;
-			}
-		}
-        return BestMovingCar;
-	}*/
 
     public void UpdateCarCount(int carCount) {
         if (carCount <= 0) {
@@ -175,6 +166,9 @@ public class TrackController : MonoBehaviour {
     /// Restarts the whole simulation.
     /// </summary>
 	public void Restart() {
+        
+        this.generationCounter++;
+        this.GenerationTextBox.text = this.generationCounter.ToString();
 		if (this.AutomaticRestart) {
             InstantRestart();
             return;

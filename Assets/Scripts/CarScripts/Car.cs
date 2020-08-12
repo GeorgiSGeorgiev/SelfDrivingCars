@@ -1,13 +1,16 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Car {
-	public CarController CarController { get; set; }
-	public int CheckpointCount;
-	//public int DistanceFromStart { get; set; } = 0;
+	public CarController CarController { get; }
 
-    public Car(CarController car = null, int checkpointCount = 0) {
+	public CarPhysics CarPhysics { get => this.CarController.Physics; }
+
+	public int CheckpointCount;
+
+    public Car(CarController car, int checkpointCount = 0) {
 		this.CarController = car;
 		this.CheckpointCount = checkpointCount;
 	}

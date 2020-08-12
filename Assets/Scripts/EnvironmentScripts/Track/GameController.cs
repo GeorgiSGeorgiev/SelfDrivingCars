@@ -1,43 +1,72 @@
-﻿using UnityEngine;
-using UnityEngine.SceneManagement;
+﻿using System.Collections;
+using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Singleton class managing the overall simulation.
 /// </summary>
 public class GameController : MonoBehaviour {
-    #region Members
-    // The camera object, to be referenced in Unity Editor.
-    //[SerializeField]
-    public CameraSettings Camera;
+    // The main camera object, to be referenced in Unity Editor.
+    public CameraSettings MainCamera;
+    public MinimapCameraSettings MinimapCamera;
+    private CarController targetCar; 
+    public VelocityAndSteering stats;
 
-    public static GameController Instance {
-        get;
-        private set;
-    }
-    #endregion
+    public Text CarIDTextBox;
+    public Text CarScoreTextBox;
 
-    #region Constructors
-    public void Awake() {
-        if (Instance != null) {
-            Debug.LogError("Multiple GameStateManagers in the Scene.");
-            return;
-        }
-        Instance = this;
-    }
+    public SlidersController SlidersController;
 
     public void Start() {
-        TrackController.TCInstance.WinningCarHasChanged += OnBestCarChanged;
+        TrackController.TC.WinningCarHasChanged += OnBestCarChanged;
         GeneticsController.Instance.StartGeneticAlg();
+        this.SlidersController.SetParameters(CarPhysics.MaximalForwardsVelocity);
     }
-    #endregion
 
-    #region Methods
     // Callback method for when the best car has changed.
     private void OnBestCarChanged(CarController bestCar) {
-        if (bestCar == null)
-            Camera.Target = null;
-        else
-            Camera.Target = bestCar.gameObject.transform;
+        if (bestCar != null) {
+            this.ChangeFocus(bestCar);
+        }
     }
-    #endregion
+
+    private void ChangeFocus(CarController newCarTarget) {
+        this.MainCamera.Target = newCarTarget.gameObject.transform;
+        this.MinimapCamera.Target = newCarTarget.gameObject.transform;
+        this.CarIDTextBox.text = newCarTarget.ID.ToString();
+        this.CarScoreTextBox.text = newCarTarget.Score.ToString();
+        this.stats.CarPhysics = newCarTarget.Physics;
+        this.SlidersController.SetValue(this.stats.CarPhysics.Velocity);
+        this.targetCar = newCarTarget;
+    }
+
+    private void Update() {
+        ChangeCameraToBestFunctionalCar();
+        this.CarScoreTextBox.text = this.targetCar.Score.ToString();
+        this.SlidersController.SetValue(this.stats.CarPhysics.Velocity);
+    }
+
+    public void ChangeCameraToBestFunctionalCar() {
+        if (TrackController.TC.WinningCar != null && TrackController.TC.WinningCar.Physics.enabled == false) {
+            CarController bestMovingCar = this.GetBestFunctionalCar();
+            //Debug.Log(bestMovingCar.ID);
+            if (bestMovingCar != null && bestMovingCar != this.targetCar) {
+                this.ChangeFocus(bestMovingCar);
+            }
+        }
+    }
+
+    private CarController GetBestFunctionalCar() {
+        CarController BestMovingCar = TrackController.TC.cars[0].CarController;
+
+        float bestScore = 0;
+        foreach (var car in TrackController.TC.cars) {
+            if (car.CarController.Physics.enabled && car.CarController.Score > bestScore) {
+                BestMovingCar = car.CarController;
+                bestScore = BestMovingCar.Score;
+            }
+
+        }
+        return BestMovingCar;
+    }
 }
