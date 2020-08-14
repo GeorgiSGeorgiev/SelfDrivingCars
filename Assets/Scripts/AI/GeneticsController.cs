@@ -6,7 +6,7 @@ using UnityEngine;
 public class GeneticsController : MonoBehaviour {
 	public static GeneticsController Instance;
 
-	public int AgentCount = 20;
+	public int AgentCount = 42;
 
 	public int[] NNTopology;
 	private List<Agent> agents { get; } = new List<Agent>();
@@ -17,18 +17,24 @@ public class GeneticsController : MonoBehaviour {
 
 	private Genetics geneticAlg;
 
-	public uint GenerationNumber { get => geneticAlg.GenerationNumber; }
-
 	public void Awake() {
 		if (Instance != null) {
 			throw new Exception("More than one GenetcsController-s running at the moment.");
 		}
 		Instance = this;
+		this.AgentCount = SettingsMenu.AgentCount;
 	}
 
 	public void StartGeneticAlg() {
 		var neuralNet = new NeuralNet(this.NNTopology);
 		this.geneticAlg = new Genetics(neuralNet.TotalWeightCount, this.AgentCount, StartEval);
+		NoAgentsLeft += geneticAlg.FinishEvolveAndStartAgain;
+		geneticAlg.Start();
+	}
+
+	public void StartGeneticAlg(Queue<Genotype> preloadedGenotypes) {
+		var neuralNet = new NeuralNet(this.NNTopology);
+		this.geneticAlg = new Genetics(neuralNet.TotalWeightCount, this.AgentCount, preloadedGenotypes, StartEval);
 		NoAgentsLeft += geneticAlg.FinishEvolveAndStartAgain;
 		geneticAlg.Start();
 	}

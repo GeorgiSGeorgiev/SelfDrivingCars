@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 
@@ -38,6 +40,7 @@ public class CarController : MonoBehaviour {
         this.SpriteRenderer = GetComponent<SpriteRenderer>();
         this.Physics = GetComponent<CarPhysics>();
         this.sensors = GetComponentsInChildren<Sensor>();
+        this.KeyboardInput = SettingsMenu.PlayerInput;
 
         this.ID = CarController.StaticID;
         this.name = $"Agent { this.ID }";

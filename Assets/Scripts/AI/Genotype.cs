@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 /// <summary>
 /// Genotype is a member of the population.
 /// </summary>
+[Serializable]
 public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable<float> {
 	public float Evaluation { get; set; }
 	// In evolutionary biology fitness is the quantitative representation of natural selection. (source: https://en.wikipedia.org/wiki/Fitness_(biology))
@@ -26,6 +29,9 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 			}
 		}
 	}
+
+	public static readonly string DefaultPathAndName = Application.persistentDataPath + "/save.dat";
+	public static string LastSavedTo { get; private set; }
 
 	public Genotype(float[] newValues) {
 		this.values = new float[newValues.Length];
@@ -71,6 +77,79 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 		this.Evaluation = 0;
 		this.Fitness = 0;
 	}
+	// choose name option, another method variant
+	public void SaveToFile() {
+		string targetPath = Genotype.DefaultPathAndName;
+		FileStream file;
+
+		if (File.Exists(targetPath)) {
+			file = File.OpenWrite(targetPath);
+		}
+		else {
+			file = File.Create(targetPath);
+		}
+		BinaryFormatter bf = new BinaryFormatter();
+		bf.Serialize(file, this);
+		file.Flush();
+		file.Close();
+	}
+
+	public void SaveToFile(string agentName) {
+		string targetPath = Application.persistentDataPath + $"/save_{ agentName }.dat";
+		Genotype.LastSavedTo = targetPath;
+		FileStream file;
+
+		if (File.Exists(targetPath)) {
+			file = File.OpenWrite(targetPath);
+		}
+		else {
+			file = File.Create(targetPath);
+		}
+		BinaryFormatter bf = new BinaryFormatter();
+		bf.Serialize(file, this);
+		file.Flush();
+		file.Close();
+	}
+
+	public static Genotype LoadFromFile() {
+		string targetPath = Genotype.DefaultPathAndName;
+		FileStream file;
+
+		if (File.Exists(targetPath)) {
+			file = File.OpenRead(targetPath);
+		}
+		else {
+			Debug.LogError("File not found.");
+			return null;
+		}
+
+		BinaryFormatter bf = new BinaryFormatter();
+		Genotype resultGenotype;
+		resultGenotype = (Genotype)bf.Deserialize(file);
+		file.Close();
+		return resultGenotype;
+	}
+
+	public static Genotype LoadFromFile(string agentName) {
+		string targetPath = Application.persistentDataPath + $"/save_{ agentName }.dat";
+		FileStream file;
+
+		if (File.Exists(targetPath)) {
+			file = File.OpenRead(targetPath);
+		}
+		else {
+			Debug.LogError("File not found.");
+			return null;
+		}
+
+		BinaryFormatter bf = new BinaryFormatter();
+		Genotype resultGenotype;
+		resultGenotype = (Genotype)bf.Deserialize(file);
+		file.Close();
+		return resultGenotype;
+	}
+
+
 
 	// indexer for better performance and ease of usage
 	public float this[int index] {

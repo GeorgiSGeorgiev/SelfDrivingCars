@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,6 +13,8 @@ public class GameController : MonoBehaviour {
     private CarController targetCar; 
     public VelocityAndSteering stats;
 
+    public Queue<Genotype> PreloadedGenotypes;
+
     public Text CarIDTextBox;
     public Text CarScoreTextBox;
 
@@ -19,7 +22,14 @@ public class GameController : MonoBehaviour {
 
     public void Start() {
         TrackController.TC.WinningCarHasChanged += OnBestCarChanged;
-        GeneticsController.Instance.StartGeneticAlg();
+
+        this.PreloadedGenotypes = SettingsMenu.ImportedGenotypes;
+        if (PreloadedGenotypes != null) {
+            GeneticsController.Instance.StartGeneticAlg(this.PreloadedGenotypes);
+		}
+        else {
+            GeneticsController.Instance.StartGeneticAlg();
+        }
         this.SlidersController.SetParameters(CarPhysics.MaximalForwardsVelocity);
     }
 
@@ -42,7 +52,9 @@ public class GameController : MonoBehaviour {
 
     private void Update() {
         ChangeCameraToBestFunctionalCar();
-        this.CarScoreTextBox.text = this.targetCar.Score.ToString();
+        if (this.targetCar != null) {
+            this.CarScoreTextBox.text = this.targetCar.Score.ToString();
+        } 
         this.SlidersController.SetValue(this.stats.CarPhysics.Velocity);
     }
 

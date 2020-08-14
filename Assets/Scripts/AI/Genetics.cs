@@ -56,8 +56,6 @@ public class Genetics {
 
 	public int PopulationSize { get; private set; }
 
-	public uint GenerationNumber { get; private set; }
-
 	/// <summary>
 	/// Creates a new Genetics instance.
 	/// </summary>
@@ -74,7 +72,23 @@ public class Genetics {
 			var newGenotype = new Genotype(genotypeVarCount, Genetics.DefPopulationValMin, Genetics.DefPopulationValMax, rand);
 			currentPopulation.Add(newGenotype);
 		}
-		GenerationNumber = 1;
+	}
+
+	public Genetics(int genotypeVarCount, int populationSize, Queue<Genotype> preLoadedGenotypes, EvaluationMethodDel evaluationMethod = null) {
+		this.PopulationSize = populationSize;
+		this.EvalMethod = evaluationMethod;
+
+		currentPopulation = new List<Genotype>(populationSize);
+		for (int i = 0; i < populationSize; i++) {
+			// Add new genotypes to the current population.
+			if (preLoadedGenotypes.Count > 0) {
+				currentPopulation.Add(preLoadedGenotypes.Dequeue());
+			}
+			else {
+				var newGenotype = new Genotype(genotypeVarCount, Genetics.DefPopulationValMin, Genetics.DefPopulationValMax, rand);
+				currentPopulation.Add(newGenotype);
+			}
+		}
 	}
 
 	public static void DefaultFitnessCalculation(IEnumerable<Genotype> population) {
@@ -201,7 +215,6 @@ public class Genetics {
 		var resultPopulation = Genetics.DefCreateRandomCombination(secondPopulation, this.PopulationSize);
 		Genetics.DefMutateAllExceptTheBestOne(resultPopulation);
 		currentPopulation = new List<Genotype>(resultPopulation);
-		GenerationNumber++;
 
 		this.EvalMethod(currentPopulation);
 	}

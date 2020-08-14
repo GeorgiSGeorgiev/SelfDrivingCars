@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class TrackController : MonoBehaviour {
     public static TrackController TC;
@@ -34,6 +37,19 @@ public class TrackController : MonoBehaviour {
     private Vector3 startingPos;
     private Quaternion startingRot;
     public List<Car> cars { get; private set; } = new List<Car>();
+
+    private CarController exportCar;
+    public CarController ExportCar {
+        get {
+            if (this.GenerationCounter <= 1) {
+                return this.WinningCar;
+			}
+            return this.exportCar;
+        }
+        private set {
+            this.exportCar = value;
+        }
+    }
 
     private CarController winningCar;
 
@@ -169,6 +185,7 @@ public class TrackController : MonoBehaviour {
         
         this.generationCounter++;
         this.GenerationTextBox.text = this.generationCounter.ToString();
+        this.exportCar = this.winningCar;
 		if (this.AutomaticRestart) {
             InstantRestart();
             return;
@@ -191,6 +208,20 @@ public class TrackController : MonoBehaviour {
 
         WinningCar = null;
         SecondPosCar = null;
+    }
+
+    public void ExportTheBestGenotype() {
+        if (this.WinningCar == null) {
+            throw new Exception("The winning car was not still set. Wait is needed. Skip the first 3-4 frames (maybe more).");
+		}
+        this.WinningCar.Agent.Genotype.SaveToFile();
+	}
+
+    public void ExportTheBestGenotype(string agentName) {
+        if (this.WinningCar == null) {
+            throw new Exception("The winning car was not still set. Wait is needed. Skip the first 3-4 frames (maybe more).");
+        }
+        this.WinningCar.Agent.Genotype.SaveToFile(agentName);
     }
 
     public IEnumerator<CarController> GetCarEnumerator() {
