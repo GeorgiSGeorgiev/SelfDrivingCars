@@ -8,6 +8,8 @@ using UnityEngine.UI;
 /// </summary>
 public class GameController : MonoBehaviour {
     // The main camera object, to be referenced in Unity Editor.
+    public String TrackName;
+
     public CameraSettings MainCamera;
     public MinimapCameraSettings MinimapCamera;
     private CarController targetCar; 
@@ -21,17 +23,34 @@ public class GameController : MonoBehaviour {
     public SlidersController SlidersController;
 
     public void Start() {
-        TrackController.TC.WinningCarHasChanged += OnBestCarChanged;
+        if (!SettingsMenu.PlayerInput) {
+            TrackController.TC.WinningCarHasChanged += OnBestCarChanged;
+        }
+        this.SlidersController.SetParameters(CarPhysics.MaximalForwardsVelocity);
+        if (!SettingsMenu.PlayerInput) {
+            this.PreloadedGenotypes = SettingsMenu.ImportedGenotypes;
+        }
+        else {
+            this.SetBestGenotypes();
+		}
 
-        this.PreloadedGenotypes = SettingsMenu.ImportedGenotypes;
         if (PreloadedGenotypes != null) {
             GeneticsController.Instance.StartGeneticAlg(this.PreloadedGenotypes);
-		}
+        }
         else {
             GeneticsController.Instance.StartGeneticAlg();
         }
-        this.SlidersController.SetParameters(CarPhysics.MaximalForwardsVelocity);
     }
+
+    // Important method
+    private void SetBestGenotypes() {
+        this.PreloadedGenotypes = new Queue<Genotype>();
+        switch (this.TrackName) {
+            case "Track1":
+                this.PreloadedGenotypes.Enqueue(Genotype.LoadFromFile("Track1Best2"));
+                break;
+		}
+	}
 
     // Callback method for when the best car has changed.
     private void OnBestCarChanged(CarController bestCar) {
@@ -59,11 +78,24 @@ public class GameController : MonoBehaviour {
     }
 
     public void ChangeCameraToBestFunctionalCar() {
-        if (TrackController.TC.WinningCar != null && TrackController.TC.WinningCar.Physics.enabled == false) {
-            CarController bestMovingCar = this.GetBestFunctionalCar();
-            //Debug.Log(bestMovingCar.ID);
-            if (bestMovingCar != null && bestMovingCar != this.targetCar) {
-                this.ChangeFocus(bestMovingCar);
+        if (!SettingsMenu.PlayerInput) {
+            if (TrackController.TC.WinningCar != null && TrackController.TC.WinningCar.Physics.enabled == false) {
+                CarController bestMovingCar = this.GetBestFunctionalCar();
+                //Debug.Log(bestMovingCar.ID);
+                if (bestMovingCar != null && bestMovingCar != this.targetCar) {
+                    this.ChangeFocus(bestMovingCar);
+                }
+            }
+        }
+        else { // player online... set the camera to the player
+            if (TrackController.TC.PlayerCarModel.enabled == true) {
+                this.ChangeFocus(TrackController.TC.PlayerCarModel);
+            }
+            else {
+                CarController bestMovingCar = this.GetBestFunctionalCar();
+                if (bestMovingCar != null) {
+                    this.ChangeFocus(bestMovingCar);
+                }
             }
         }
     }

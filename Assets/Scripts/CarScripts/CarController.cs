@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -14,16 +15,32 @@ public class CarController : MonoBehaviour {
     private static uint StaticID { get => uniqueID++; }
 
     public bool KeyboardInput = false;
+
     public SpriteRenderer SpriteRenderer { get; private set; }
 
     public float MaxTimeBetweenCheckpoints = 8;
     private float sinceLastCheckpTime;
 
+    public event Action CarExploded;
+
     public Agent Agent { get; set; }
 
+    private float score;
     public float Score {
-        get => Agent.Genotype.Evaluation;
-        set => Agent.Genotype.Evaluation = value;
+        get {
+            if (this.Agent != null) {
+                return Agent.Genotype.Evaluation;
+            }
+            return this.score;
+        }
+        set {
+            if (this.Agent != null) {
+                Agent.Genotype.Evaluation = value;
+            }
+            else {
+                this.score = value;
+            }
+        }
     }
 
     private Sensor[] sensors;
@@ -40,7 +57,7 @@ public class CarController : MonoBehaviour {
         this.SpriteRenderer = GetComponent<SpriteRenderer>();
         this.Physics = GetComponent<CarPhysics>();
         this.sensors = GetComponentsInChildren<Sensor>();
-        this.KeyboardInput = SettingsMenu.PlayerInput;
+        //this.KeyboardInput = SettingsMenu.PlayerInput;
 
         this.ID = CarController.StaticID;
         this.name = $"Agent { this.ID }";
@@ -78,7 +95,7 @@ public class CarController : MonoBehaviour {
             /*
             if (this.ID == 1)
                 Debug.Log($"0.) Inputs: { sensorsOutputs[0]} { sensorsOutputs[1] } { sensorsOutputs[2] }  { sensorsOutputs[3] } { sensorsOutputs[4] }");*/
-            double[] NNOutputs = Agent.NeuralNet.GetTheNNOutputs(sensorsOutputs);
+            double[] NNOutputs = this.Agent.NeuralNet.GetTheNNOutputs(sensorsOutputs);
             /*if (this.ID == 1) {
                 Debug.Log($"1.) Time: { Time.deltaTime } Outputs: { NNOutputs[0]} { NNOutputs[1] } ");
                 Debug.Log($"Weight count: { this.Agent.NeuralNet.TotalWeightCount } ");
@@ -96,12 +113,14 @@ public class CarController : MonoBehaviour {
         foreach (Sensor sensor in sensors) {
             sensor.HideSprite();
 		}
+        this.CarExploded?.Invoke();
 	}
 
     private void UserCarExplode() {
         this.Physics.StopCar();
         this.Physics.enabled = false;
         this.enabled = false;
+        this.CarExploded?.Invoke();
     }
 
     public void CheckpointCaptured() {
@@ -109,12 +128,13 @@ public class CarController : MonoBehaviour {
     }
 
     public void Restart() {
+        this.enabled = true;
         this.sinceLastCheckpTime = 0;
         this.Physics.enabled = true;
-        this.Agent.ResurrectAgent();
-        this.enabled = true;
+        this.Agent?.ResurrectAgent();
         foreach (Sensor sensor in sensors) {
             sensor.ShowSprite();
+            //Debug.Log("Sensor enabled");
         }
     }
 

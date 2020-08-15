@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 using UnityEngine;
 
 /// <summary>
@@ -77,7 +78,18 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 		this.Evaluation = 0;
 		this.Fitness = 0;
 	}
-	// choose name option, another method variant
+
+	public string GenotypeValuesToString() {
+		StringBuilder stringBuilder = new StringBuilder();
+		for (int i = 0; i < this.values.Length; i++) {
+			stringBuilder.Append(this.values[i]);
+			if (i != this.values.Length - 1) {
+				stringBuilder.Append(" ");
+			}
+		}
+		return stringBuilder.ToString();
+	}
+	
 	public void SaveToFile() {
 		string targetPath = Genotype.DefaultPathAndName;
 		FileStream file;
@@ -119,8 +131,7 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 			file = File.OpenRead(targetPath);
 		}
 		else {
-			Debug.LogError("File not found.");
-			return null;
+			throw new FileNotFoundException();
 		}
 
 		BinaryFormatter bf = new BinaryFormatter();
@@ -138,8 +149,7 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 			file = File.OpenRead(targetPath);
 		}
 		else {
-			Debug.LogError("File not found.");
-			return null;
+			throw new FileNotFoundException();
 		}
 
 		BinaryFormatter bf = new BinaryFormatter();

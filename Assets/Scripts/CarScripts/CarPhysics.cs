@@ -40,6 +40,7 @@ public class CarPhysics : MonoBehaviour {
     /// Car crash event.
     /// </summary>
     public event Action Crash;
+    //public Action TimedOut;
 
     // Start is called before the first frame update.
     void Start() {

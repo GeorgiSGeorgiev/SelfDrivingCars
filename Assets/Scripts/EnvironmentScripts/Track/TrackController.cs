@@ -19,11 +19,7 @@ public class TrackController : MonoBehaviour {
         private set => generationCounter = value;
     }
 
-    public Text GenerationTextBox; 
-
-    [SerializeField]
-    private bool AutomaticRestart = true;
-    private bool RestartButtonClicked = false;
+    public Text GenerationTextBox;
 
     private AllCheckpoints checkpoints;
 
@@ -33,6 +29,8 @@ public class TrackController : MonoBehaviour {
     /// Car that we clone. It is used as a user controlled car if the KeyboardInput boolean is set to true in the game.
     /// </summary>
     public CarController PrototypeCarModel;
+    public CarController PlayerCarModel;
+    private int PlayerCheckpointCount = 1;
 
     private Vector3 startingPos;
     private Quaternion startingRot;
@@ -114,6 +112,13 @@ public class TrackController : MonoBehaviour {
 
         this.checkpoints = new AllCheckpoints(GetComponentsInChildren<Checkpoint>());
 
+        if (SettingsMenu.PlayerInput) {
+            this.PlayerCarModel.KeyboardInput = SettingsMenu.PlayerInput;
+        }
+        else {
+            this.PlayerCarModel.gameObject.SetActive(false);
+		}
+
         this.startingPos = PrototypeCarModel.transform.position;
         this.startingRot = PrototypeCarModel.transform.rotation;
         PrototypeCarModel.gameObject.SetActive(false);
@@ -126,7 +131,15 @@ public class TrackController : MonoBehaviour {
     }
 
     public void FixedUpdate() {
-        //Debug.Log("NONON");
+        if (!SettingsMenu.PlayerInput) {
+            UpdateAgentCarsScore();
+		}
+        else {
+            UpdateAgentAndPlayerCarsScore();
+        }
+    }
+
+    public void UpdateAgentCarsScore() {
         for (int i = 0; i < cars.Count; i++) {
             if (cars[i].CarController.enabled) {
                 cars[i].CarController.UpdateScore(checkpoints.GetCompletionScore, ref cars[i].CheckpointCount);
@@ -141,7 +154,35 @@ public class TrackController : MonoBehaviour {
                 }
             }
             // car crashed, change its sprite
-            else if (! (cars[i].CarController == WinningCar || cars[i].CarController == SecondPosCar)) {
+            else if (!(cars[i].CarController == WinningCar || cars[i].CarController == SecondPosCar)) {
+                cars[i].UpdateColor(Color.red);
+                //Debug.Log("NONON");
+            }
+        }
+    }
+
+    public void UpdateAgentAndPlayerCarsScore() {
+        this.PlayerCarModel.UpdateScore(checkpoints.GetCompletionScore, ref PlayerCheckpointCount);
+        for (int i = 0; i < cars.Count; i++) {
+            if (cars[i].CarController.enabled) {
+                cars[i].CarController.UpdateScore(checkpoints.GetCompletionScore, ref cars[i].CheckpointCount);
+                // update best car
+                if (WinningCar == null || cars[i].CarController.Score > WinningCar.Score) {
+                    WinningCar = cars[i].CarController;
+                }
+                if (PlayerCarModel.Score > WinningCar.Score) {
+                    WinningCar = PlayerCarModel;
+				}
+                // update second-position car
+                if ((SecondPosCar == null || cars[i].CarController.Score > SecondPosCar.Score) && cars[i].CarController != WinningCar) {
+                    SecondPosCar = cars[i].CarController;
+                }
+                if ((SecondPosCar == null || PlayerCarModel.Score > SecondPosCar.Score) && PlayerCarModel != WinningCar) {
+                    SecondPosCar = PlayerCarModel;
+				}
+            }
+            // car crashed, change its sprite
+            else if (!(cars[i].CarController == WinningCar || cars[i].CarController == SecondPosCar)) {
                 cars[i].UpdateColor(Color.red);
                 //Debug.Log("NONON");
             }
@@ -186,28 +227,28 @@ public class TrackController : MonoBehaviour {
         this.generationCounter++;
         this.GenerationTextBox.text = this.generationCounter.ToString();
         this.exportCar = this.winningCar;
-		if (this.AutomaticRestart) {
-            InstantRestart();
-            return;
-		}
-        if (this.RestartButtonClicked) {
-            InstantRestart();
-            this.RestartButtonClicked = false;
-            return;
-		}
+        InstantRestart();
 	}
 
     private void InstantRestart() {
         foreach (Car car in cars) {
-            car.CarController.transform.position = startingPos;
-            car.CarController.transform.rotation = startingRot;
-            car.CarController.Restart();
-            car.UpdateColor(Color.white);
+            this.CarRestart(car.CarController);
             car.CheckpointCount = 1;
         }
+        if (SettingsMenu.PlayerInput) {
+            this.CarRestart(this.PlayerCarModel);
+            this.PlayerCheckpointCount = 1;
+		}
 
         WinningCar = null;
         SecondPosCar = null;
+    }
+
+    private void CarRestart(CarController car) {
+        car.transform.position = startingPos;
+        car.transform.rotation = startingRot;
+        car.Restart();
+        car.SpriteRenderer.color = Color.white;
     }
 
     public void ExportTheBestGenotype() {

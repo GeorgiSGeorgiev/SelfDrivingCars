@@ -81,7 +81,7 @@ public class Genetics {
 		currentPopulation = new List<Genotype>(populationSize);
 		for (int i = 0; i < populationSize; i++) {
 			// Add new genotypes to the current population.
-			if (preLoadedGenotypes.Count > 0) {
+			if (preLoadedGenotypes.Count > 0 || SettingsMenu.PlayerInput) {
 				currentPopulation.Add(preLoadedGenotypes.Dequeue());
 			}
 			else {
@@ -114,6 +114,9 @@ public class Genetics {
 	/// <param name="firstPopulation">The current population</param>
 	/// <returns>List containing the best four genotypes.</returns>
 	public static IList<Genotype> GetTheBestFourGenotypes(IList<Genotype> firstPopulation) {
+		if (firstPopulation.Count < 4) {
+			throw new ArgumentException("The first population had a size less than 4");
+		}
 		var secondPopulation = new List<Genotype> { firstPopulation[0], firstPopulation[1], firstPopulation[2], firstPopulation[3] };
 		return secondPopulation;
 	}
@@ -210,12 +213,13 @@ public class Genetics {
 	/// </summary>
 	public void FinishEvolveAndStartAgain() {
 		Genetics.DefaultFitnessCalculation(currentPopulation);
-		currentPopulation.Sort();
-		var secondPopulation = Genetics.GetTheBestFourGenotypes(currentPopulation);
-		var resultPopulation = Genetics.DefCreateRandomCombination(secondPopulation, this.PopulationSize);
-		Genetics.DefMutateAllExceptTheBestOne(resultPopulation);
-		currentPopulation = new List<Genotype>(resultPopulation);
-
+		if (!SettingsMenu.PlayerInput) {
+			currentPopulation.Sort();
+			var secondPopulation = Genetics.GetTheBestFourGenotypes(currentPopulation);
+			var resultPopulation = Genetics.DefCreateRandomCombination(secondPopulation, this.PopulationSize);
+			Genetics.DefMutateAllExceptTheBestOne(resultPopulation);
+			currentPopulation = new List<Genotype>(resultPopulation);
+		}
 		this.EvalMethod(currentPopulation);
 	}
 }

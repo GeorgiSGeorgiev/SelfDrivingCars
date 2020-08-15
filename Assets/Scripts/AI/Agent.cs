@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 /// <summary>
 /// Neural net + Genotype. In our case this will represent the "backend" of the car.
@@ -54,6 +55,7 @@ public class Agent: IComparable<Agent> {
 
 	public void ResurrectAgent() {
 		this.AgentLives = true;
+		//UnityEngine.Debug.Log("I LIVE!!!");
 		Genotype.ResetEvalAndFitness();
 	}
 	
