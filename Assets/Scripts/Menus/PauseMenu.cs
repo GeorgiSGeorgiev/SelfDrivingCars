@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -15,9 +16,16 @@ public class PauseMenu : MonoBehaviour {
     public GameObject SettingsMenuUI;
     public GameObject InfoPanel;
 
+    public AudioMixer MainAudioMixer;
+    public Slider SoundVolumeSlider;
+
 
     public TrackController MainTrackController;
     public InputField AgentNameField;
+
+    public CameraSettings MainCamera;
+    public Dropdown CameraModeDropdown;
+
     public Text InfoText;
     private string LastPathAndName;
 
@@ -32,8 +40,24 @@ public class PauseMenu : MonoBehaviour {
 
     public string MainMenuName;
 
-    // Update is called once per frame
-    void Update() {
+	private void Start() {
+        float currentVolume = 0;
+        MainAudioMixer.GetFloat("Volume", out currentVolume);
+        this.SoundVolumeSlider.value = currentVolume;
+
+        switch (SettingsMenu.CurrentCameraMode) {
+            case CameraMode.Follow:
+                CameraModeDropdown.value = 0;
+                break;
+            case CameraMode.FollowAndRotate:
+                CameraModeDropdown.value = 1;
+                break;
+		}
+        CameraModeDropdown.RefreshShownValue();
+    }
+
+	// Update is called once per frame
+	void Update() {
         if (Input.GetKeyDown(KeyCode.Escape)) {
             if (GameIsPaused) {
                 ResumeGame();
@@ -101,5 +125,21 @@ public class PauseMenu : MonoBehaviour {
         SettingsMenuUI.SetActive(false);
         InfoPanel.SetActive(true);
         this.InfoText.text = $"The agent's genotype serialized and successfully exported to: \n { this.LastPathAndName }";
+    }
+
+    public void ChangeCamera(int cameraIndex) {
+        switch (cameraIndex) {
+            case 0:
+                SettingsMenu.CurrentCameraMode = CameraMode.Follow;
+                break;
+            case 1:
+                SettingsMenu.CurrentCameraMode = CameraMode.FollowAndRotate;
+                break;
+        }
+        this.MainCamera.cameraMode = SettingsMenu.CurrentCameraMode;
+    }
+
+    public void ChangeVolume(float volume) {
+        this.MainAudioMixer.SetFloat("Volume", volume);
     }
 }

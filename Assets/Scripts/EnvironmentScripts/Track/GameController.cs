@@ -23,6 +23,7 @@ public class GameController : MonoBehaviour {
     public SlidersController SlidersController;
 
     public void Start() {
+        this.MainCamera.cameraMode = SettingsMenu.CurrentCameraMode; 
         if (!SettingsMenu.PlayerInput) {
             TrackController.TC.WinningCarHasChanged += OnBestCarChanged;
         }
@@ -47,7 +48,8 @@ public class GameController : MonoBehaviour {
         this.PreloadedGenotypes = new Queue<Genotype>();
         switch (this.TrackName) {
             case "Track1":
-                this.PreloadedGenotypes.Enqueue(Genotype.LoadFromFile("Track1Best2"));
+                Genotype newGenotype = Genotype.LoadFromFile(Application.dataPath + "/PretrainedAgents", "s1_Track1Best2");
+                this.PreloadedGenotypes.Enqueue(newGenotype);
                 break;
 		}
 	}

@@ -52,14 +52,4 @@ public class Sensor : MonoBehaviour {
     public void SetSpriteColor(Color color) {
         this.UsedSprite.color = color;
     }
-    public void HideSprite() {
-        this.UsedSprite.gameObject.SetActive(false);
-    }
-    public void ShowSprite() {
-        //this.UsedSprite.enabled = true;
-        this.UsedSprite.gameObject.SetActive(true);
-        /*if (this.UsedSprite.isVisible) {
-            Debug.Log("Visible");
-		}*/
-	}
 }

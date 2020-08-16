@@ -159,6 +159,30 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 		return resultGenotype;
 	}
 
+	/// <summary>
+	/// Loades a seriallized agent from concrete path.
+	/// </summary>
+	/// <param name="path">Full path to the agent.</param>
+	/// <param name="fullName">Full file name without the '/' symbol at the beginning and without the file extension.</param>
+	/// <returns></returns>
+	public static Genotype LoadFromFile(string path, string fullName) {
+		string targetPath = path + $"/{ fullName }.dat";
+		FileStream file;
+
+		if (File.Exists(targetPath)) {
+			file = File.OpenRead(targetPath);
+		}
+		else {
+			throw new FileNotFoundException();
+		}
+
+		BinaryFormatter bf = new BinaryFormatter();
+		Genotype resultGenotype;
+		resultGenotype = (Genotype)bf.Deserialize(file);
+		file.Close();
+		return resultGenotype;
+	}
+
 
 
 	// indexer for better performance and ease of usage

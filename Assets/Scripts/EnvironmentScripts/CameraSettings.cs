@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using UnityEngine;
 
+public enum CameraMode { Follow, FollowAndRotate };
+
 public class CameraSettings : MonoBehaviour {
-    public enum CameraMode { Follow, FollowAndRotate };
+    
 
     public Transform Target;
     private Transform dummyTarget;

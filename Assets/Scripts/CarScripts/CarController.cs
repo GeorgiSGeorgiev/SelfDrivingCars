@@ -110,9 +110,6 @@ public class CarController : MonoBehaviour {
         this.Physics.enabled = false;
         this.enabled = false;
         this.Agent.KillAgent();
-        foreach (Sensor sensor in sensors) {
-            sensor.HideSprite();
-		}
         this.CarExploded?.Invoke();
 	}
 
@@ -132,10 +129,6 @@ public class CarController : MonoBehaviour {
         this.sinceLastCheckpTime = 0;
         this.Physics.enabled = true;
         this.Agent?.ResurrectAgent();
-        foreach (Sensor sensor in sensors) {
-            sensor.ShowSprite();
-            //Debug.Log("Sensor enabled");
-        }
     }
 
     public delegate float ScoreCountingMethod(CarController car, ref int CheckpointInx);
