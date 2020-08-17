@@ -8,14 +8,12 @@ using UnityEngine.UI;
 /// </summary>
 public class GameController : MonoBehaviour {
     // The main camera object, to be referenced in Unity Editor.
-    public String TrackName;
-
     public CameraSettings MainCamera;
     public MinimapCameraSettings MinimapCamera;
     private CarController targetCar; 
     public VelocityAndSteering stats;
 
-    public Queue<Genotype> PreloadedGenotypes;
+    public static Queue<Genotype> PreloadedGenotypes;
 
     public Text CarIDTextBox;
     public Text CarScoreTextBox;
@@ -29,30 +27,16 @@ public class GameController : MonoBehaviour {
         }
         this.SlidersController.SetParameters(CarPhysics.MaximalForwardsVelocity);
         if (!SettingsMenu.PlayerInput) {
-            this.PreloadedGenotypes = SettingsMenu.ImportedGenotypes;
+            PreloadedGenotypes = SettingsMenu.ImportedGenotypes;
         }
-        else {
-            this.SetBestGenotypes();
-		}
 
         if (PreloadedGenotypes != null) {
-            GeneticsController.Instance.StartGeneticAlg(this.PreloadedGenotypes);
+            GeneticsController.Instance.StartGeneticAlg(PreloadedGenotypes);
         }
         else {
             GeneticsController.Instance.StartGeneticAlg();
         }
     }
-
-    // Important method
-    private void SetBestGenotypes() {
-        this.PreloadedGenotypes = new Queue<Genotype>();
-        switch (this.TrackName) {
-            case "Track1":
-                Genotype newGenotype = Genotype.LoadFromFile(Application.dataPath + "/PretrainedAgents", "s1_Track1Best2");
-                this.PreloadedGenotypes.Enqueue(newGenotype);
-                break;
-		}
-	}
 
     // Callback method for when the best car has changed.
     private void OnBestCarChanged(CarController bestCar) {

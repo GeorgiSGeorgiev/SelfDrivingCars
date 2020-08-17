@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.UIElements;
 
 public class TrackController : MonoBehaviour {
     public static TrackController TC;
@@ -23,12 +19,23 @@ public class TrackController : MonoBehaviour {
 
     private AllCheckpoints checkpoints;
 
-    public float TrackLength { get => checkpoints.TrackLength; }
+    public float TrackLength {
+        get {
+            if (this.checkpoints != null) {
+                return checkpoints.TrackLength;
+            }
+            Debug.LogError("Couldn't measure the track length because no checkpoint were assigned to the track. To fix the error add checkpoints all along the track.");
+            return 0;
+        }
+    }
 
     /// <summary>
-    /// Car that we clone. It is used as a user controlled car if the KeyboardInput boolean is set to true in the game.
+    /// Car that we clone. It is used as a main agent car model.
     /// </summary>
     public CarController PrototypeCarModel;
+    /// <summary>
+    /// The car player drives.
+    /// </summary>
     public CarController PlayerCarModel;
     private int PlayerCheckpointCount = 1;
 
@@ -74,6 +81,7 @@ public class TrackController : MonoBehaviour {
     /// </summary>
     public event Action<CarController> WinningCarHasChanged;
 
+
     private CarController secondPosCar;
 
     public CarController SecondPosCar {
@@ -87,17 +95,9 @@ public class TrackController : MonoBehaviour {
                     secondPosCar.SpriteRenderer.color = Color.white;
 				}
                 this.secondPosCar = value;
-
-                SecondPosCarHasChanged?.Invoke(SecondPosCar);
-
 			}
 		}
 	}
-
-    /// <summary>
-    /// Event that means we have a new second posistion car.
-    /// </summary>
-    public event Action<CarController> SecondPosCarHasChanged;
     
 
 	public void Awake() {
