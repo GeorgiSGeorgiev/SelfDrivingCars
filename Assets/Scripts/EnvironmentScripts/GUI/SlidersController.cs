@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Custom made class that combines two different sliders to create a fancy double-sided speedometer.
+/// </summary>
 public class SlidersController: MonoBehaviour {
     public Image LeftSlideBackground;
     public Image LeftHandle;
@@ -12,6 +13,10 @@ public class SlidersController: MonoBehaviour {
     public Image RightHandle;
     public Slider RightSlider;
 
+    /// <summary>
+    /// Sets the maximal velocity of the two sliders.
+    /// </summary>
+    /// <param name="max">The maximal velocity to be set. Both sliders have the same <c>max</c> value.</param>
     public void SetParameters(float max) {
 
         LeftSlider.minValue = 0;
@@ -22,6 +27,10 @@ public class SlidersController: MonoBehaviour {
         RightSlideBackground.color = Color.blue;
 	}
 
+    /// <summary>
+    /// Sets the current car velocity on the sliders.
+    /// </summary>
+    /// <param name="value">The velocity to be shown on the sliders.</param>
     public void SetValue(float value) {
         if (value <= 0) {
             if (!LeftSlideBackground.enabled) {

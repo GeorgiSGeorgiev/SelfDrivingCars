@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 /// <summary>
-/// Neural net + Genotype. In our case this will represent the "backend" of the car.
-/// On construction sets the neural net weights to the genotype values.
+/// NeuralNet + Genotype. In our case this will represent the "backend" of the car.
 /// </summary>
 public class Agent: IComparable<Agent> {
 	public Genotype Genotype { get; }
 	public NeuralNet NeuralNet { get; }
 
 	private bool agentLives;
+	/// <summary>
+	/// Determines if the current agent is still alive.
+	/// </summary>
 	public bool AgentLives {
 		get { return agentLives; }
 		private set {
@@ -29,6 +30,11 @@ public class Agent: IComparable<Agent> {
 	/// </summary>
 	public event Action<Agent> AgentDiedEvent;
 
+	/// <summary>
+	/// The main Agent constructor.
+	/// </summary>
+	/// <param name="topology">The topology of the neural network. It is an array which contains the number of the nodes in each layer.</param>
+	/// <param name="genotype">The values which will be assigned to the NN weights.</param>
 	public Agent(int[] topology, Genotype genotype) {
 		AgentLives = true;
 		NeuralNet = new NeuralNet(topology);
@@ -49,16 +55,27 @@ public class Agent: IComparable<Agent> {
 		}
 	}
 
+	/// <summary>
+	/// Compare this Agent's Genotype to another Agent's Genotype.
+	/// </summary>
+	/// <param name="other">The other Agent.</param>
+	/// <returns>Positive, negative or 0 according to the comparison result.</returns>
 	public int CompareTo(Agent other) {
 		return this.Genotype.CompareTo(other.Genotype);
 	}
 
+	/// <summary>
+	/// Resets the Agent's Genotype Evaluation and Fitness.
+	/// </summary>
 	public void ResurrectAgent() {
 		this.AgentLives = true;
 		//UnityEngine.Debug.Log("I LIVE!!!");
 		Genotype.ResetEvalAndFitness();
 	}
 	
+	/// <summary>
+	/// Kills the Agent.
+	/// </summary>
 	public void KillAgent() {
 		this.AgentLives = false;
 	}

@@ -1,7 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
+/// <summary>
+/// Car sensor. Detects differents obstacles and sends its readings to the car logic (to the Neural Network).
+/// </summary>
 public class Sensor : MonoBehaviour {
     public LayerMask DetectionLayer;
 
@@ -12,7 +13,7 @@ public class Sensor : MonoBehaviour {
     private float MaxReadDistance = 15f;
 
     /// <summary>
-    /// The sensor readings as part of the MaxReadDistance.
+    /// The sensor readings in the interval [MinReadDistance, MaxReadDistance].
     /// </summary>
     public float Readings { get; private set; }
 
@@ -41,7 +42,6 @@ public class Sensor : MonoBehaviour {
 
         if (this.Readings != this.MaxReadDistance) {
             this.SetSpriteColor(Color.red);
-            //Debug.Log("Hit");
         }
         else {
             this.SetSpriteColor(Color.white);
@@ -49,6 +49,10 @@ public class Sensor : MonoBehaviour {
         UsedSprite.transform.position = this.transform.position + direction * this.Readings;
     }
 
+    /// <summary>
+    /// Change the color of the sensor sprite (of the end of the detector).
+    /// </summary>
+    /// <param name="color"></param>
     public void SetSpriteColor(Color color) {
         this.UsedSprite.color = color;
     }

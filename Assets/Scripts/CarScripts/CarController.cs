@@ -1,31 +1,52 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
-
 // AI car controller
+/// <summary>
+/// Contains the CarPhysics and car's Agent. This is the main controller of the Car.
+/// </summary>
 public class CarController : MonoBehaviour {
-
+    /// <summary>
+    /// Controller ID.
+    /// </summary>
     public uint ID { get; private set; }
 
+    // used to calculate the ID of this Controller.
     private static uint uniqueID = 0;
     private static uint StaticID { get => uniqueID++; }
 
+    /// <summary>
+    /// Indicates if the user controlls the car or not.
+    /// </summary>
     public bool KeyboardInput = false;
 
+    /// <summary>
+    /// The sprite (visual game model) of the car. To be referenced from the Unity editor.
+    /// Allows different model changes from the code.
+    /// </summary>
     public SpriteRenderer SpriteRenderer { get; private set; }
 
+    /// <summary>
+    /// Time until the car is disabled.
+    /// </summary>
     public float MaxTimeBetweenCheckpoints = 8;
     private float sinceLastCheckpTime;
 
+    /// <summary>
+    /// Event triggered on car destruction.
+    /// </summary>
     public event Action CarExploded;
 
+    /// <summary>
+    /// The car's agent which contains the NeuralNet and the Genotype.
+    /// </summary>
     public Agent Agent { get; set; }
 
     private float score;
+    /// <summary>
+    /// The score of the current controller.
+    /// To calculate the score Genotype's Evaluation is used.
+    /// </summary>
     public float Score {
         get {
             if (this.Agent != null) {
@@ -57,9 +78,12 @@ public class CarController : MonoBehaviour {
         this.SpriteRenderer = GetComponent<SpriteRenderer>();
         this.Physics = GetComponent<CarPhysics>();
         this.sensors = GetComponentsInChildren<Sensor>();
-        //this.KeyboardInput = SettingsMenu.PlayerInput;
 
         this.ID = CarController.StaticID;
+        // security check
+        if (CarController.uniqueID == uint.MaxValue) {
+            CarController.uniqueID = 0;
+		}
         this.name = $"Agent { this.ID }";
         if (!KeyboardInput) {
             Physics.Crash += AgentCarExplode;
@@ -74,8 +98,12 @@ public class CarController : MonoBehaviour {
         this.sinceLastCheckpTime += Time.deltaTime;
     }
 
+    /// <summary>
+    /// Get sensor readings, do the NN calculations and set car's velocity and steering.
+    /// </summary>
 	private void FixedUpdate() {
         if (sinceLastCheckpTime > this.MaxTimeBetweenCheckpoints) {
+            // timed out
             if (!KeyboardInput) {
                 this.AgentCarExplode();
             }
@@ -84,28 +112,27 @@ public class CarController : MonoBehaviour {
             }
             return;
 		}
+
         //
         // Main Entry Point
+        // Get sensor readings, do the NN calculations and set car's velocity and steering
         //
 		if (!this.KeyboardInput) {
+            // get sensor readings
             double[] sensorsOutputs = new double[sensors.Length];
             for (int i = 0; i < sensors.Length; i++) {
                 sensorsOutputs[i] = sensors[i].Readings;
 			}
-            /*
-            if (this.ID == 1)
-                Debug.Log($"0.) Inputs: { sensorsOutputs[0]} { sensorsOutputs[1] } { sensorsOutputs[2] }  { sensorsOutputs[3] } { sensorsOutputs[4] }");*/
+
+            // get the neural network outputs
             double[] NNOutputs = this.Agent.NeuralNet.GetTheNNOutputs(sensorsOutputs);
-            /*if (this.ID == 1) {
-                Debug.Log($"1.) Time: { Time.deltaTime } Outputs: { NNOutputs[0]} { NNOutputs[1] } ");
-                Debug.Log($"Weight count: { this.Agent.NeuralNet.TotalWeightCount } ");
-            }*/
+            
+            // set the car velocity and steering
             this.Physics.SetInput(NNOutputs);
 		}
 	}
 
     private void AgentCarExplode() {
-        //Debug.Log($"{this.ID} crashed");
         this.Physics.StopCar();
         this.Physics.enabled = false;
         this.enabled = false;
@@ -120,10 +147,16 @@ public class CarController : MonoBehaviour {
         this.CarExploded?.Invoke();
     }
 
+    /// <summary>
+    /// Reset the <c>sinceLastCheckpTime</c> variable.
+    /// </summary>
     public void CheckpointCaptured() {
         sinceLastCheckpTime = 0;
     }
 
+    /// <summary>
+    /// Reset the CarController.
+    /// </summary>
     public void Restart() {
         this.enabled = true;
         this.sinceLastCheckpTime = 0;
@@ -131,11 +164,21 @@ public class CarController : MonoBehaviour {
         this.Agent?.ResurrectAgent();
     }
 
+    /// <summary>
+    /// Public delegate to the method that counts the Score of the car.
+    /// </summary>
+    /// <param name="car">The targeted car.</param>
+    /// <param name="CheckpointInx">The index of the last captured checkpoint. This value can be changed from the method according to the capture distance of the next checkpoint.</param>
+    /// <returns></returns>
     public delegate float ScoreCountingMethod(CarController car, ref int CheckpointInx);
     
+    /// <summary>
+    /// Calculate the new score.
+    /// </summary>
+    /// <param name="countingMethod">A method which calculates the new score.</param>
+    /// <param name="checpointInx">Currently captured checkpoint index.</param>
     public void UpdateScore(ScoreCountingMethod countingMethod, ref int checpointInx) {
         this.Score = countingMethod(this, ref checpointInx);
-        //Debug.Log($"{ checpointInx }");
     }
 }
 

@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Represents the movement and crash physics of the car.
+/// </summary>
 public class CarPhysics : MonoBehaviour {
     // Custrom made settings for the game physics
     public static float MaximalForwardsVelocity = 100f;
     public static float MaximalBackwardsVelocity = 42f;
-    public CarPhysics[] cars;
     private const float SurfaceFriction = 20f;
     private const float Acceleration = 42f;
     private const float TurnSpeed = 110f;
@@ -40,17 +40,11 @@ public class CarPhysics : MonoBehaviour {
     /// Car crash event.
     /// </summary>
     public event Action Crash;
-    //public Action TimedOut;
 
     // Start is called before the first frame update.
     void Start() {
         mainController = GetComponent<CarController>();
         Physics2D.IgnoreLayerCollision(8,8);
-        if (cars != null) {
-            foreach (var car in cars) {
-                Physics2D.IgnoreCollision(car.GetComponent<BoxCollider2D>(), GetComponent<BoxCollider2D>(), true);
-            }
-        }
     }
 
     // Update is called once per fixed amount of time.
@@ -119,7 +113,7 @@ public class CarPhysics : MonoBehaviour {
     /// <summary>
     /// Sets the accelerationInput and the steeringInput according to the inputData argument.
     /// </summary>
-    
+    /// <param name="inputData">The new acceleration and steering (in this order) values. These values are normally directly from the NN.</param>
     public void SetInput(double[] inputData) {
         accelerationInput = inputData[0];
         steeringInput = inputData[1];
@@ -155,8 +149,6 @@ public class CarPhysics : MonoBehaviour {
 
     // Method triggered on collision detection.
     void OnCollisionEnter2D() {
-        //Debug.Log("Collision");
-        //Crash += Mess;
         Crash?.Invoke();
 
         // On collision, stop the car

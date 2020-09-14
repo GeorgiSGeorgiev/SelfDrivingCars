@@ -3,22 +3,51 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// One of the main simulation controllers. Controlls all of the cars and updates their stats.
+/// <c>TrackController</c> gets directly the track's checkpoints and counts the track's length. It tracks the best two cars too.
+/// <para><c>TrackController</c> is singleton so it has a static instance of itself inside. Check the static <paramref name ="Instance"/> property.</para>
+/// </summary>
 public class TrackController : MonoBehaviour {
-    public static TrackController TC;
+    private static TrackController instance;
+    /// <summary>
+    /// Singleton instance of the TrackController. Can be accessed from everywhere if a <c>TrackController</c> was assigned to the current scene.
+    /// </summary>
+    public static TrackController Instance {
+        get => instance;
+        private set {
+            if (instance != null) {
+                throw new Exception("The TrackController.Instance was already created.");
+            }
+            instance = value;
+        }
+    }
 
-    public CameraSettings MainCamera;
+    /// <summary>
+    /// The velocity and steering text boxes. To be assigned from the Unity editor.
+    /// </summary>
     public VelocityAndSteering stats;
 
     private int generationCounter = 0;
+    /// <summary>
+    /// Current generation/run.
+    /// </summary>
     public int GenerationCounter { 
         get => generationCounter;
         private set => generationCounter = value;
     }
 
+    /// <summary>
+    /// The text box which shows the number of the current generation/run.
+    /// </summary>
     public Text GenerationTextBox;
 
+    // all checkpoints which are get directly from the track
     private AllCheckpoints checkpoints;
 
+    /// <summary>
+    /// Contains the length of the track if any checkpoints are present.
+    /// </summary>
     public float TrackLength {
         get {
             if (this.checkpoints != null) {
@@ -34,16 +63,23 @@ public class TrackController : MonoBehaviour {
     /// </summary>
     public CarController PrototypeCarModel;
     /// <summary>
-    /// The car player drives.
+    /// The car that player drives.
     /// </summary>
     public CarController PlayerCarModel;
     private int PlayerCheckpointCount = 1;
 
     private Vector3 startingPos;
     private Quaternion startingRot;
-    public List<Car> cars { get; private set; } = new List<Car>();
+
+    /// <summary>
+    /// List of all cars on the track. Can not be set from outside the <paramref name = "TrackController"</paramref> class.
+    /// </summary>
+    public List<Car> Cars { get; private set; } = new List<Car>();
 
     private CarController exportCar;
+    /// <summary>
+    /// Contains the best agent car which can be exported via serialization.
+    /// </summary>
     public CarController ExportCar {
         get {
             if (this.GenerationCounter <= 1) {
@@ -57,7 +93,9 @@ public class TrackController : MonoBehaviour {
     }
 
     private CarController winningCar;
-
+    /// <summary>
+    /// The best car in the race.
+    /// </summary>
     public CarController WinningCar {
         get => winningCar;
         private set {
@@ -83,7 +121,9 @@ public class TrackController : MonoBehaviour {
 
 
     private CarController secondPosCar;
-
+    /// <summary>
+    /// The second best car.
+    /// </summary>
     public CarController SecondPosCar {
         get => secondPosCar;
         private set {
@@ -99,13 +139,11 @@ public class TrackController : MonoBehaviour {
 		}
 	}
     
-
+    /// <summary>
+    /// Gets the TrackController's singleton instance, all of the checkpoints from the track, sets the player input setting of the user's car and disables the prototype car model.
+    /// </summary>
 	public void Awake() {
-        if (TrackController.TC != null) {
-            throw new Exception("The TrackControllerInstance was already created.");
-        }
-
-        TrackController.TC = this;
+        TrackController.Instance = this;
 
         this.GenerationCounter = 0;
         this.GenerationTextBox.text = this.generationCounter.ToString();
@@ -124,12 +162,18 @@ public class TrackController : MonoBehaviour {
         PrototypeCarModel.gameObject.SetActive(false);
 	}
 
+    /// <summary>
+    /// Before the first Update all of the checkpoints are made invisible.
+    /// </summary>
 	public void Start() {
 		foreach (Checkpoint checkp in this.checkpoints) {
             checkp.IsVisible = false;
 		}
     }
 
+    /// <summary>
+    /// Unity method that updates car scores every frame.
+    /// </summary>
     public void FixedUpdate() {
         if (!SettingsMenu.PlayerInput) {
             UpdateAgentCarsScore();
@@ -139,80 +183,88 @@ public class TrackController : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Updates car scores, the best car and the second best car.
+    /// </summary>
     public void UpdateAgentCarsScore() {
-        for (int i = 0; i < cars.Count; i++) {
-            if (cars[i].CarController.enabled) {
-                cars[i].CarController.UpdateScore(checkpoints.GetCompletionScore, ref cars[i].CheckpointCount);
+        for (int i = 0; i < Cars.Count; i++) {
+            if (Cars[i].CarController.enabled) {
+                Cars[i].CarController.UpdateScore(checkpoints.GetCompletionScore, ref Cars[i].CheckpointCount);
                 // update best car
-                if (WinningCar == null || cars[i].CarController.Score > WinningCar.Score) {
-                    WinningCar = cars[i].CarController;
-                    //Debug.Log($"New best car, Score: { winningCar.Score}");
+                if (WinningCar == null || Cars[i].Score > WinningCar.Score) {
+                    WinningCar = Cars[i].CarController;
                 }
                 // update second-position car
-                if ((SecondPosCar == null || cars[i].CarController.Score > SecondPosCar.Score) && cars[i].CarController != WinningCar) {
-                    SecondPosCar = cars[i].CarController;
+                if ((SecondPosCar == null || Cars[i].Score > SecondPosCar.Score) && Cars[i].CarController != WinningCar) {
+                    SecondPosCar = Cars[i].CarController;
                 }
             }
             // car crashed, change its sprite
-            else if (!(cars[i].CarController == WinningCar || cars[i].CarController == SecondPosCar)) {
-                cars[i].UpdateColor(Color.red);
-                //Debug.Log("NONON");
+            else if (!(Cars[i].CarController == WinningCar || Cars[i].CarController == SecondPosCar)) {
+                Cars[i].UpdateColor(Color.red);
             }
         }
     }
 
+    /// <summary>
+    /// Updates car scores, the best car and the second best car. Counts with player input.
+    /// </summary>
     public void UpdateAgentAndPlayerCarsScore() {
         this.PlayerCarModel.UpdateScore(checkpoints.GetCompletionScore, ref PlayerCheckpointCount);
-        for (int i = 0; i < cars.Count; i++) {
-            if (cars[i].CarController.enabled) {
-                cars[i].CarController.UpdateScore(checkpoints.GetCompletionScore, ref cars[i].CheckpointCount);
+        for (int i = 0; i < Cars.Count; i++) {
+            if (Cars[i].CarController.enabled) {
+                Cars[i].CarController.UpdateScore(checkpoints.GetCompletionScore, ref Cars[i].CheckpointCount);
                 // update best car
-                if (WinningCar == null || cars[i].CarController.Score > WinningCar.Score) {
-                    WinningCar = cars[i].CarController;
+                if (WinningCar == null || Cars[i].Score > WinningCar.Score) {
+                    WinningCar = Cars[i].CarController;
                 }
                 if (PlayerCarModel.Score > WinningCar.Score) {
                     WinningCar = PlayerCarModel;
 				}
                 // update second-position car
-                if ((SecondPosCar == null || cars[i].CarController.Score > SecondPosCar.Score) && cars[i].CarController != WinningCar) {
-                    SecondPosCar = cars[i].CarController;
+                if ((SecondPosCar == null || Cars[i].Score > SecondPosCar.Score) && Cars[i].CarController != WinningCar) {
+                    SecondPosCar = Cars[i].CarController;
                 }
                 if ((SecondPosCar == null || PlayerCarModel.Score > SecondPosCar.Score) && PlayerCarModel != WinningCar) {
                     SecondPosCar = PlayerCarModel;
 				}
             }
             // car crashed, change its sprite
-            else if (!(cars[i].CarController == WinningCar || cars[i].CarController == SecondPosCar)) {
-                cars[i].UpdateColor(Color.red);
-                //Debug.Log("NONON");
+            else if (!(Cars[i].CarController == WinningCar || Cars[i].CarController == SecondPosCar)) {
+                Cars[i].UpdateColor(Color.red);
             }
         }
     }
 
+    /// <summary>
+    /// Sets the right car count on the track according to the method's input parameter.
+    /// </summary>
+    /// <param name="carCount">The new car count.</param>
     public void UpdateCarCount(int carCount) {
         if (carCount <= 0) {
             throw new ArgumentException("carCount must not be less that or equal to zero");
         }
-        if (carCount == cars.Count) { return; }
+        if (carCount == Cars.Count) { return; }
         // remove cars
-        if (carCount < cars.Count) {
-            int removeCount = cars.Count - carCount;
+        if (carCount < Cars.Count) {
+            int removeCount = Cars.Count - carCount;
             for (; removeCount > 0; removeCount--) {
-                Car car = cars[cars.Count - 1];
-                cars.RemoveAt(cars.Count - 1);
+                Car car = Cars[Cars.Count - 1];
+                Cars.RemoveAt(Cars.Count - 1);
                 Destroy(car.CarController.gameObject);
 			}
             return;
 		}
-        if (carCount > cars.Count) {
-            int addCount = carCount - cars.Count;
+        // add cars
+        if (carCount > Cars.Count) {
+            int addCount = carCount - Cars.Count;
             for (; addCount > 0; addCount--) {
                 GameObject newCar = Instantiate(PrototypeCarModel.gameObject);
                 newCar.transform.position = startingPos;
                 newCar.transform.rotation = startingRot;
                 CarController carController = newCar.GetComponent<CarController>();
                 // add the new car controller to the game logic
-                cars.Add(new Car(carController));
+                Cars.Add(new Car(carController));
                 newCar.SetActive(true);
 			}
             return;
@@ -230,8 +282,9 @@ public class TrackController : MonoBehaviour {
         InstantRestart();
 	}
 
+    // resets all of the cars
     private void InstantRestart() {
-        foreach (Car car in cars) {
+        foreach (Car car in Cars) {
             this.CarRestart(car.CarController);
             car.CheckpointCount = 1;
         }
@@ -244,6 +297,7 @@ public class TrackController : MonoBehaviour {
         SecondPosCar = null;
     }
 
+    // resets a single car
     private void CarRestart(CarController car) {
         car.transform.position = startingPos;
         car.transform.rotation = startingRot;
@@ -251,13 +305,22 @@ public class TrackController : MonoBehaviour {
         car.SpriteRenderer.color = Color.white;
     }
 
+    /// <summary>
+    /// Manages genotype export. Serializes and saves the best genotype to a file.
+    /// <para>As a genotype name the default one is used.</para>
+    /// </summary>
     public void ExportTheBestGenotype() {
         if (this.WinningCar == null) {
-            throw new Exception("The winning car was not still set. Wait is needed. Skip the first 3-4 frames (maybe more).");
+            throw new Exception("The winning car was not still set. Wait is needed. Skip the first 3-4 (maybe more) frames.");
 		}
         this.WinningCar.Agent.Genotype.SaveToFile();
 	}
 
+    /// <summary>
+    /// Manages genotype export. Serializes and saves the best genotype to a file.
+    /// <para>As a genotype name is used the <paramref name="agentName"></paramref> parameter.</para>
+    /// </summary>
+    /// <param name="agentName">The genotype name.</param>
     public void ExportTheBestGenotype(string agentName) {
         if (this.WinningCar == null) {
             throw new Exception("The winning car was not still set. Wait is needed. Skip the first 3-4 frames (maybe more).");
@@ -265,8 +328,12 @@ public class TrackController : MonoBehaviour {
         this.WinningCar.Agent.Genotype.SaveToFile(agentName);
     }
 
+    /// <summary>
+    /// Enumerator that returns each <c>Car</c> from the game.
+    /// </summary>
+    /// <returns>The current <c>Car</c>.</returns>
     public IEnumerator<CarController> GetCarEnumerator() {
-        for (int i = 0; i < cars.Count; i++)
-            yield return cars[i].CarController;
+        for (int i = 0; i < Cars.Count; i++)
+            yield return Cars[i].CarController;
     }
 }

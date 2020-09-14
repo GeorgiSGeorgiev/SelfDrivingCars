@@ -1,19 +1,18 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 
-// Source used: Applying Evolutionary Artificial Neural Networks by ArztSamuel
+// Source of the original algorithm I used in this project: Applying Evolutionary Artificial Neural Networks by ArztSamuel
 // Link: https://github.com/ArztSamuel/Applying_EANNs
-// I have completely rewritten the algorithm and changed a lot of things.
+// I have completely rewritten the algorithm and changed some details. The default algorithm values are the same.
 
 /// <summary>
 /// Delegate to a method that evaluates the current population.
 /// </summary>
-/// <param name="population">The population.</param>
+/// <param name="population">The population to be evaled.</param>
 public delegate void EvaluationMethodDel(IEnumerable<Genotype> population);
 
 /// <summary>
-/// The main part of the genetic algorithm.
+/// The main part of the genetic algorithm. It contains the Crossover and the Mutation algorithms.
 /// </summary>
 public class Genetics {
 	/// <summary>
@@ -54,14 +53,17 @@ public class Genetics {
 
 	private List<Genotype> currentPopulation;
 
+	/// <summary>
+	/// The size of the whole population.
+	/// </summary>
 	public int PopulationSize { get; private set; }
 
 	/// <summary>
 	/// Creates a new Genetics instance.
 	/// </summary>
-	/// <param name="genotypeVarCount"></param>
-	/// <param name="populationSize"></param>
-	/// <param name="evaluationMethod"></param>
+	/// <param name="genotypeVarCount"> Size of the Genotype. Must be equal to the number of the neural network weights. </param>
+	/// <param name="populationSize"> Size of the population. </param>
+	/// <param name="evaluationMethod"> Delegate to the evaluation method. </param>
 	public Genetics(int genotypeVarCount, int populationSize, EvaluationMethodDel evaluationMethod = null) {
 		this.PopulationSize = populationSize;
 		this.EvalMethod = evaluationMethod;
@@ -74,6 +76,13 @@ public class Genetics {
 		}
 	}
 
+	/// <summary>
+	/// Creates a new Genetics instance. This constructor takes preloaded genotypes too.
+	/// </summary>
+	/// <param name="genotypeVarCount"> Size of the Genotype. Must be equal to the number of the neural network weights. </param>
+	/// <param name="populationSize"> Size of the population. </param>
+	/// <param name="preLoadedGenotypes"> Queue containing preloaded genotypes. </param>
+	/// <param name="evaluationMethod"> Delegate to the evaluation method. </param>
 	public Genetics(int genotypeVarCount, int populationSize, Queue<Genotype> preLoadedGenotypes, EvaluationMethodDel evaluationMethod = null) {
 		this.PopulationSize = populationSize;
 		this.EvalMethod = evaluationMethod;
@@ -91,6 +100,10 @@ public class Genetics {
 		}
 	}
 
+	/// <summary>
+	/// Calculates the fitness of each Genotype in the population.
+	/// </summary>
+	/// <param name="population"></param>
 	public static void DefaultFitnessCalculation(IEnumerable<Genotype> population) {
 		int populationCount = 0;
 
@@ -109,7 +122,7 @@ public class Genetics {
 	}
 
 	/// <summary>
-	/// Gets the best four genotypes of the population.
+	/// Gets the best four Genotypes of the population.
 	/// </summary>
 	/// <param name="firstPopulation">The current population</param>
 	/// <returns>List containing the best four genotypes.</returns>
@@ -160,6 +173,13 @@ public class Genetics {
 		return resultPopulation;
 	}
 
+	/// <summary>
+	/// Gets two genotypes on its input and swaps some of their values.
+	/// </summary>
+	/// <param name="parent1">The first genotype to be member of the crossover.</param>
+	/// <param name="parent2">The second genotype to be member of the crossover.</param>
+	/// <param name="swapProbability">The swap probability.</param>
+	/// <returns>The result two new genotypes.</returns>
 	public static (Genotype, Genotype) CreateCrossover(Genotype parent1, Genotype parent2, float swapProbability) {
 		var newGenes1 = new float[parent1.ValueCount];
 		var newGenes2 = new float[parent2.ValueCount];
@@ -179,6 +199,10 @@ public class Genetics {
 		return (new Genotype(newGenes1), new Genotype(newGenes2));
 	}
 
+	/// <summary>
+	/// Try to mutate all genotypes except the best one.
+	/// </summary>
+	/// <param name="resultpopulation"> The final population. </param>
 	public static void DefMutateAllExceptTheBestOne(IList<Genotype> resultpopulation) {
 		for (int i = 1; i < resultpopulation.Count; i++) {
 			if (rand.NextDouble() < DefMutationPercent) {
@@ -188,7 +212,7 @@ public class Genetics {
 	}
 
 	/// <summary>
-	/// Completely change the genotype to a random value.
+	/// Completely change a random number of values of the Genotype to a new random value.
 	/// </summary>
 	/// <param name="genotype">The genotype to be mutated.</param>
 	/// <param name="mutationProbability">The probability of concrete gene of the genotype to be mutated.</param>
@@ -209,7 +233,7 @@ public class Genetics {
 	}
 
 	/// <summary>
-	/// This method has to be called after the evaluation is finished to continue the process of machine learning.
+	/// This method has to be called after the evaluation is finished to continue the process of machine (deep) learning.
 	/// </summary>
 	public void FinishEvolveAndStartAgain() {
 		Genetics.DefaultFitnessCalculation(currentPopulation);

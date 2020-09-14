@@ -8,15 +8,24 @@ using UnityEngine;
 
 /// <summary>
 /// Genotype is a member of the population.
+/// <para>Genotype stores the values which will be later assigned to the weights of the neural network.</para>
+/// <para>Each Genotype can be serialized and exported.</para>
 /// </summary>
 [Serializable]
 public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable<float> {
+	/// <value>
+	/// The main value of the Genotype which determines its evaluation.
+	/// </value>
 	public float Evaluation { get; set; }
-	// In evolutionary biology fitness is the quantitative representation of natural selection. (source: https://en.wikipedia.org/wiki/Fitness_(biology))
-	// In our algorithm it represents the value of this genotype relative to the average value of all genotypes.
-	// Fitness = Evaluation / averageEval 
+
+	/// <summary>
+	/// In evolutionary biology fitness is the quantitative representation of natural selection. (source: https://en.wikipedia.org/wiki/Fitness_(biology))
+	/// In this algorithm it represents the value of this genotype relative to the average value of all genotypes.
+	/// Fitness = Evaluation / averageEval
+	/// </summary>
 	public float Fitness { get; private set; }
 
+	// Random which we use for value generation and mutation.
 	private static System.Random rand = new System.Random();
 
 	private float[] values;
@@ -31,9 +40,16 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 		}
 	}
 
+	/// <summary>
+	/// Default game path.
+	/// </summary>
 	public static readonly string DefaultPathAndName = Application.persistentDataPath + "/save.dat";
 	public static string LastSavedTo { get; private set; }
 
+	/// <summary>
+	/// Creates a new Genotype with concrete values.
+	/// </summary>
+	/// <param name="newValues">The values which will be assigned to the Genotype.</param>
 	public Genotype(float[] newValues) {
 		this.values = new float[newValues.Length];
 		newValues.CopyTo(this.values, 0);
@@ -42,6 +58,10 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 	/// <summary>
 	/// The new genotype values are random numbers from the given interval.
 	/// </summary>
+	/// <param name="genotypeVarCount">The number of genotype variables.</param>
+	/// <param name="populationValMin">The minimal value of the variables.</param>
+	/// <param name="populationValMax">The maximal value of the variables.</param>
+	/// <param name="random">A random number generator. It is necessary to use an already existing random number genrator.</param>
 	public Genotype(int genotypeVarCount, float populationValMin, float populationValMax, System.Random random) {
 		rand = random;
 		this.values = new float[genotypeVarCount];
@@ -56,14 +76,10 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 	public void SetRandomValues(float min, float max) {
 		if (min > max) throw new ArgumentException("min value is bigger than max value!");
 		float diff = max - min;
-		//debug
-		string debugString = "";
 		for (int i = 0; i < values.Length; i++) {
 			// NextDouble returns a double in the range from 0 to 1
 			values[i] = (float) rand.NextDouble() * diff + min; // returns a value in the range from min to max
-			debugString += values[i].ToString() + "  ";
 		}
-		//Debug.Log("Weights:" + debugString);
 	}
 
 	/// <summary>
@@ -74,11 +90,18 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 		this.Fitness = this.Evaluation / averagePopulationEvaluation;
 	}
 
+	/// <summary>
+	/// Resets the Genotype Evaluation and Fitness
+	/// </summary>
 	public void ResetEvalAndFitness() {
 		this.Evaluation = 0;
 		this.Fitness = 0;
 	}
 
+	/// <summary>
+	/// Creates a string containing all of the genotype values.
+	/// </summary>
+	/// <returns>The result string.</returns>
 	public string GenotypeValuesToString() {
 		StringBuilder stringBuilder = new StringBuilder();
 		for (int i = 0; i < this.values.Length; i++) {
@@ -90,6 +113,9 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 		return stringBuilder.ToString();
 	}
 	
+	/// <summary>
+	/// Serialize this genotype and export it to a file with a default name.
+	/// </summary>
 	public void SaveToFile() {
 		string targetPath = Genotype.DefaultPathAndName;
 		FileStream file;
@@ -106,6 +132,10 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 		file.Close();
 	}
 
+	/// <summary>
+	/// Serialize this genotype and export it to a file with a custom name.
+	/// </summary>
+	/// <param name="agentName"> The name of the agent. </param>
 	public void SaveToFile(string agentName) {
 		string targetPath = Application.persistentDataPath + $"/save_{ agentName }.dat";
 		Genotype.LastSavedTo = targetPath;
@@ -123,6 +153,11 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 		file.Close();
 	}
 
+
+	/// <summary>
+	/// Loads a serialized genotype from the default path and with the default name.
+	/// </summary>
+	/// <returns> The loaded Genotype. </returns>
 	public static Genotype LoadFromFile() {
 		string targetPath = Genotype.DefaultPathAndName;
 		FileStream file;
@@ -141,6 +176,11 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 		return resultGenotype;
 	}
 
+	/// <summary>
+	/// Loads a serialized genotype from the default path and with a concrete name.
+	/// </summary>
+	/// <param name="agentName"> Name of the agent. </param>
+	/// <returns> The loaded Genotype. </returns>
 	public static Genotype LoadFromFile(string agentName) {
 		string targetPath = Application.persistentDataPath + $"/save_{ agentName }.dat";
 		FileStream file;
@@ -160,9 +200,9 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 	}
 
 	/// <summary>
-	/// Loades a seriallized agent from concrete path.
+	/// Loads a seriallized agent from a concrete path.
 	/// </summary>
-	/// <param name="path">Full path to the agent.</param>
+	/// <param name="path">The absolute path to the agent.</param>
 	/// <param name="fullName">Full file name without the '/' symbol at the beginning and without the file extension.</param>
 	/// <returns></returns>
 	public static Genotype LoadFromFile(string path, string fullName) {
@@ -200,10 +240,20 @@ public class Genotype : IComparable<Genotype>, IEquatable<Genotype>, IEnumerable
 		return other.Fitness.CompareTo(this.Fitness);
 	}
 
+	/// <summary>
+	/// Compares the fitness of two genotypes.
+	/// </summary>
+	/// <param name="other"> The other Genotype. </param>
+	/// <returns> (this.Fitness == other.Fitness) </returns>
 	public bool Equals(Genotype other) {
 		return this.Fitness == other.Fitness;
 	}
 
+	/// <summary>
+	/// The object variant of Equals.
+	/// </summary>
+	/// <param name="obj"> The other comparison item. </param>
+	/// <returns> True or False according to the result of the comparison. </returns>
 	public override bool Equals(object obj) {
 		if ((obj == null) || !this.GetType().Equals(obj.GetType())) {
 			return false;

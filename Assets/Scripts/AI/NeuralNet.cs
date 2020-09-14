@@ -1,13 +1,22 @@
 ﻿using System;
 
+/// <summary>
+/// The fully connected feedforward neural network which represents "the brain" of each agent (car).
+/// </summary>
 public class NeuralNet {
+	/// <summary>
+	/// An array containing all of the network layers.
+	/// </summary>
 	public NNLayer[] Layers { get; }
+	/// <summary>
+	/// The total number of all weights.
+	/// </summary>
 	public int TotalWeightCount { get; }
 
 	/// <summary>
 	/// Creates a new fully connected feedforward NN. The netTopology represents the number of nodes in each layer.
 	/// </summary>
-	/// <param name="netTopology">Uint array that represents the number of nodes in each layer.</param>
+	/// <param name="netTopology">Int array that represents the number of nodes in each layer.</param>
 	public NeuralNet(int[] netTopology) {
 		Layers = new NNLayer[netTopology.Length - 1]; // the last element of the netTopology array represents the output
 		for (int i = 0; i < Layers.Length; i++) {
@@ -22,8 +31,8 @@ public class NeuralNet {
 	}
 
 	/// <summary>
-	/// Get net inputs and calculate the outputs. This method uses the GetNewOutputs method from the NNLayer class.
-	/// The default activation function is Softsign. To use different function use the next method variant.
+	/// Get net inputs and calculate the outputs. This method uses the <c>GetNewOutputs</c> method from the <c>NNLayer</c> class.
+	/// The default activation function is Softsign. To use different function use another method variant.
 	/// </summary>
 	/// <param name="inputs">Array containing all the inputs.</param>
 	/// <returns>The values after all of the calculations.</returns>
@@ -45,8 +54,8 @@ public class NeuralNet {
 	/// Allows to pick a custom activation function.
 	/// </summary>
 	/// <param name="inputs">Array containing all the inputs.</param>
-	/// <param name="activationFunc"></param>
-	/// <returns></returns>
+	/// <param name="activationFunc">The activation function which will be used in the NN output calculation.</param>
+	/// <returns>The values after all of the calculations are finished.</returns>
 	public double[] GetTheNNOutputs(double[] inputs, Func<double, double> activationFunc) {
 		var outputs = new double[inputs.Length];
 		inputs.CopyTo(outputs, 0);

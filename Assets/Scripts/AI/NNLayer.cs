@@ -1,28 +1,50 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 
 /// <summary>
-/// Custom-made exception
+/// Custom-made exception.
 /// </summary>
 public class NodeCountException: Exception {
 	const string errorMessage = "Node count missmatch.";
 
+	/// <summary>
+	/// Constructor which sets a default message to the Exception.
+	/// </summary>
 	public NodeCountException() : base(errorMessage) {
 		this.Source = "SelfDriving cars application";
 	}
 
+	/// <summary>
+	/// Allows to write a custom message.
+	/// </summary>
+	/// <param name="message">The custom message to be written.</param>
 	public NodeCountException(string message) : base(String.Format("{0} - {1}", errorMessage, message)) {
 		this.Source = "SelfDriving cars application";
 	}
 }
 
+/// <summary>
+/// Layer of the fully connected feedforward neural network.
+/// </summary>
 public class NNLayer {
+	/// <summary>
+	/// Number of the nodes in the current layer.
+	/// </summary>
 	public int NodeCount { get; }
+	/// <summary>
+	/// Number of the outputs of the current layer.
+	/// </summary>
 	public int OutputCount { get; }
+	/// <summary>
+	/// An array containing all of the output edges weights.
+	/// </summary>
 	public float[,] NodeWeights { get; set; }
 	// the first index represents the node ID, the second is the output weight index in the concrete node
 
+	/// <summary>
+	/// Creates a new layer and all of the edges which connect this layer to the next one.
+	/// </summary>
+	/// <param name="nodeCount">Number of all nodes in the layer.</param>
+	/// <param name="outputCount">Number of the layer outputs.</param>
 	public NNLayer(int nodeCount, int outputCount) {
 		this.NodeCount = nodeCount;
 		this.OutputCount = outputCount;
@@ -64,7 +86,7 @@ public class NNLayer {
 
 	/// <summary>
 	/// Gets the new outputs of one concrete node. Firstly the method uses the weights to calculate the output values
-	/// and then it aplies the activationFunc to the output which sets the values in the interval from -1 to 1.
+	/// and then it aplies the <c>activationFunc</c> to the output which sets the values in the interval from -1 to 1.
 	/// </summary>
 	/// <param name="inputs">The input values that have to be processed.</param>
 	/// <param name="activationFunc">The activation function to apply in the calculations of the autput.</param>
