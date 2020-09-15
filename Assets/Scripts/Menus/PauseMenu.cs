@@ -152,6 +152,15 @@ public class PauseMenu : MonoBehaviour {
     /// Export the best genotype and activate the info panel.
     /// </summary>
     public void ExportTheBest() {
+        SettingsMenuUI.SetActive(false);
+        InfoPanel.SetActive(true);
+
+        if (SettingsMenu.PlayerInput) {
+            this.AgentNameField.text = "";
+            this.InfoText.text = "Player vs. AI mode is activated. The agent export is not possible.";
+            return;
+        }
+
         if (this.AgentNameField.text == null || this.AgentNameField.text == "") {
             MainTrackController.ExportTheBestGenotype();
             //Debug.Log("No name");
@@ -161,8 +170,6 @@ public class PauseMenu : MonoBehaviour {
             MainTrackController.ExportTheBestGenotype(this.AgentNameField.text);
             this.LastPathAndName = Genotype.LastSavedTo;
         }
-        SettingsMenuUI.SetActive(false);
-        InfoPanel.SetActive(true);
         this.InfoText.text = $"The agent's genotype serialized and successfully exported to: \n { this.LastPathAndName }";
     }
 

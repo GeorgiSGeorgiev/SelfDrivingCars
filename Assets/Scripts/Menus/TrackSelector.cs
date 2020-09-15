@@ -51,6 +51,11 @@ public class TrackSelector : MonoBehaviour {
                 }
             }
             Genotype newGenotype = Genotype.LoadFromFile(Application.dataPath + "/PretrainedAgents", BestAgentNames[wantedIndex]);
+            // before building the game, comment the line above and uncomment the line below.
+            //Genotype newGenotype = Genotype.LoadFromFile(System.IO.Directory.GetCurrentDirectory() + "/PretrainedAgents", BestAgentNames[wantedIndex]);
+            // Warning! The built game will not contain the preloaded genotypes folder so they have to be copy-pased to the folder where the game.exe is located.
+            // Preloaded genotypes have to be contained inside the "/PretrainedAgents" folder.
+
             // set preloaded genotypes
             GameController.PreloadedGenotypes.Enqueue(newGenotype);
         }

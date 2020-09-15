@@ -310,6 +310,9 @@ public class TrackController : MonoBehaviour {
     /// <para>As a genotype name the default one is used.</para>
     /// </summary>
     public void ExportTheBestGenotype() {
+        if (SettingsMenu.PlayerInput) {
+            return;
+        }
         if (this.WinningCar == null) {
             throw new Exception("The winning car was not still set. Wait is needed. Skip the first 3-4 (maybe more) frames.");
 		}
@@ -322,6 +325,9 @@ public class TrackController : MonoBehaviour {
     /// </summary>
     /// <param name="agentName">The genotype name.</param>
     public void ExportTheBestGenotype(string agentName) {
+        if (SettingsMenu.PlayerInput) {
+            return;
+		}
         if (this.WinningCar == null) {
             throw new Exception("The winning car was not still set. Wait is needed. Skip the first 3-4 frames (maybe more).");
         }
